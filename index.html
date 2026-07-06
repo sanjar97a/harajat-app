@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Harajat Kundaligi</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#2A2620" />
+<link rel="apple-touch-icon" href="icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Inter, sans-serif; background: #F6F3EE; color: #2A2620; padding-bottom: 48px; }
+  input, select, button { font-family: inherit; }
+  input:focus, select:focus { outline: 2px solid #3F7BD9; outline-offset: 1px; }
+  button:focus-visible { outline: 2px solid #3F7BD9; outline-offset: 2px; }
+
+  .header { background: #2A2620; color: #F6F3EE; padding: 32px 20px 26px; }
+  .header-label { display: flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; margin-bottom: 6px; }
+  .header-total { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
+  .header-total span { font-size: 18px; font-weight: 500; opacity: 0.7; }
+  .header-sub { font-size: 13px; opacity: 0.6; margin-top: 2px; }
+
+  .card { background: #fff; margin: 0 16px; border-radius: 16px; padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+  .form-card { margin-top: -16px; }
+  .row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .row input[type="text"], .row input[type="date"] { padding: 10px 12px; border-radius: 10px; border: 1px solid #E4DFD5; font-size: 15px; }
+  .row input[type="text"] { flex: 1; }
+  .row input[type="date"] { color: #5A5548; font-size: 13px; }
+  .full { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #E4DFD5; font-size: 15px; margin-bottom: 8px; }
+  select.full-select { flex: 1; padding: 10px 8px; border-radius: 10px; border: 1px solid #E4DFD5; font-size: 13px; color: #5A5548; }
+  .add-btn { display: flex; align-items: center; gap: 6px; background: #3F7BD9; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .error { color: #D9455F; font-size: 12px; margin-top: 6px; }
+
+  .tabs { display: flex; gap: 8px; padding: 20px 16px 4px; }
+  .tab { flex: 1; padding: 9px 0; border-radius: 10px; border: none; background: #EDE8DE; color: #5A5548; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .tab.active { background: #2A2620; color: #F6F3EE; }
+
+  .section-title { font-size: 13px; font-weight: 600; color: #5A5548; margin: 20px 16px 8px 20px; display: flex; align-items: center; gap: 6px; }
+
+  .cat-bar-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; }
+  .cat-dot { width: 9px; height: 9px; border-radius: 5px; flex-shrink: 0; }
+  .cat-bar-track { flex: 1; height: 8px; background: #EEE9DE; border-radius: 4px; overflow: hidden; }
+  .cat-bar-fill { height: 100%; border-radius: 4px; }
+  .cat-name { width: 108px; flex-shrink: 0; }
+  .cat-value { width: 92px; text-align: right; font-weight: 600; flex-shrink: 0; }
+
+  .list-wrap { margin: 0 16px; }
+  .empty { text-align: center; color: #8A8578; font-size: 13px; padding: 24px 0; }
+  .entry { background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+  .entry-left { display: flex; align-items: center; gap: 10px; }
+  .entry-dot { width: 10px; height: 10px; border-radius: 5px; flex-shrink: 0; }
+  .entry-desc { font-size: 14px; font-weight: 600; }
+  .entry-meta { font-size: 12px; color: #8A8578; }
+  .entry-right { display: flex; align-items: center; gap: 10px; }
+  .entry-amount { font-size: 14px; font-weight: 700; }
+  .del-btn { background: none; border: none; color: #C9C2B4; cursor: pointer; padding: 4px; font-size: 16px; line-height: 1; }
+
+  .install-banner { margin: 16px; padding: 12px 14px; background: #EAF1FB; border: 1px solid #C9DCF3; border-radius: 12px; font-size: 13px; color: #2A2620; display: none; }
+  .install-banner button { margin-top: 8px; background: #3F7BD9; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">💼 Harajat kundaligi</div>
+  <div class="header-total" id="totalDisplay">0 <span>so'm</span></div>
+  <div class="header-sub" id="periodLabel">Bugun sarflangan summa</div>
+</div>
+
+<div class="card form-card">
+  <div class="row">
+    <input type="text" id="amountInput" inputmode="numeric" placeholder="Summa" />
+    <input type="date" id="dateInput" />
+  </div>
+  <input type="text" class="full" id="descInput" placeholder="Nimaga sarfladingiz? (mas: tushlik, taksi, svet)" />
+  <div class="row" style="margin-bottom:0;">
+    <select class="full-select" id="categorySelect">
+      <option value="">Avtomatik kategoriya</option>
+    </select>
+    <button class="add-btn" id="addBtn">+ Qo'shish</button>
+  </div>
+  <div class="error" id="errorMsg"></div>
+</div>
+
+<div id="installBanner" class="install-banner">
+  Ilovani telefon ekraniga o'rnatib qo'ying — internetsiz ham ochiladi.
+  <br /><button id="installBtn">Ekranga o'rnatish</button>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-view="kunlik">Kunlik</button>
+  <button class="tab" data-view="haftalik">Haftalik</button>
+  <button class="tab" data-view="oylik">Oylik</button>
+  <button class="tab" data-view="hammasi">Barchasi</button>
+</div>
+
+<div class="section-title">📊 Kategoriyalar bo'yicha</div>
+<div class="card" id="categoryCard" style="display:none;">
+  <div id="categoryList"></div>
+</div>
+
+<div class="section-title">🗓️ Yozuvlar (<span id="entryCount">0</span>)</div>
+<div class="list-wrap" id="entryList"></div>
+
+<script>
+// ---------- Kategoriya aniqlash lug'ati ----------
+const CATEGORY_RULES = [
+  { name: "Oziq-ovqat", color: "#D97B3F", keywords: ["ovqat","non","osh","palov","restoran","kafe","abed","tushlik","nonushta","kechki","shashlik","manti","somsa","choy","qahva","market","do'kon","dokon","produkt"] },
+  { name: "Transport", color: "#3F7BD9", keywords: ["taxi","taksi","yol","yo'l","benzin","avtobus","metro","marshrutka","moshina","mashina","transport","yandex"] },
+  { name: "Kommunal", color: "#4FA37A", keywords: ["svet","gaz","suv","internet","telefon","kommunal","wifi","wi-fi","elektr","mobil"] },
+  { name: "Kiyim-kechak", color: "#B15FC7", keywords: ["kiyim","poyabzal","kurtka","koylak","shim","futbolka"] },
+  { name: "Sog'liq", color: "#D9455F", keywords: ["dori","shifokor","dorixona","tibbiyot","vrach","kasalxona","vitamin"] },
+  { name: "Ta'lim", color: "#3FA0D9", keywords: ["kitob","kurs","talim","ta'lim","maktab","universitet","repetitor","dars"] },
+  { name: "Ko'ngilochar", color: "#D9A83F", keywords: ["kino","oyin","o'yin","konsert","sayohat","klub","bilyard"] },
+];
+const OTHER = { name: "Boshqa", color: "#8A8578" };
+const ALL_CATEGORIES = [...CATEGORY_RULES.map(r => r.name), OTHER.name];
+
+function detectCategory(desc) {
+  const d = desc.toLowerCase();
+  for (const rule of CATEGORY_RULES) {
+    if (rule.keywords.some(k => d.includes(k))) return rule.name;
+  }
+  return OTHER.name;
+}
+function colorFor(name) {
+  return CATEGORY_RULES.find(r => r.name === name)?.color || OTHER.color;
+}
+function fmt(n) { return new Intl.NumberFormat("uz-UZ").format(Math.round(n)); }
+function todayISO() { return new Date().toISOString().slice(0,10); }
+function startOfWeek(d) {
+  const date = new Date(d);
+  const day = (date.getDay() + 6) % 7;
+  date.setDate(date.getDate() - day);
+  date.setHours(0,0,0,0);
+  return date;
+}
+function startOfMonth(d) {
+  const date = new Date(d);
+  date.setDate(1);
+  date.setHours(0,0,0,0);
+  return date;
+}
+
+// ---------- Ma'lumotlarni saqlash (telefon xotirasida, localStorage) ----------
+const STORAGE_KEY = "harajat_kundaligi_v1";
+function loadExpenses() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function saveExpenses(list) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+let expenses = loadExpenses();
+let currentView = "kunlik";
+
+// ---------- Select ro'yxatini to'ldirish ----------
+const categorySelect = document.getElementById("categorySelect");
+ALL_CATEGORIES.forEach(c => {
+  const opt = document.createElement("option");
+  opt.value = c; opt.textContent = c;
+  categorySelect.appendChild(opt);
+});
+document.getElementById("dateInput").value = todayISO();
+
+// ---------- Qo'shish ----------
+document.getElementById("addBtn").addEventListener("click", () => {
+  const amountInput = document.getElementById("amountInput");
+  const descInput = document.getElementById("descInput");
+  const dateInput = document.getElementById("dateInput");
+  const errorMsg = document.getElementById("errorMsg");
+
+  const val = parseFloat(amountInput.value.replace(/[^0-9.]/g, ""));
+  if (!val || val <= 0) { errorMsg.textContent = "Summani to'g'ri kiriting"; return; }
+  if (!descInput.value.trim()) { errorMsg.textContent = "Nima uchun sarflaganingizni yozing"; return; }
+
+  const chosenCat = categorySelect.value || detectCategory(descInput.value);
+  expenses.unshift({
+    id: Date.now(),
+    amount: val,
+    desc: descInput.value.trim(),
+    category: chosenCat,
+    date: dateInput.value || todayISO(),
+  });
+  saveExpenses(expenses);
+
+  amountInput.value = ""; descInput.value = ""; categorySelect.value = ""; errorMsg.textContent = "";
+  render();
+});
+
+// ---------- Tab almashtirish ----------
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentView = btn.dataset.view;
+    render();
+  });
+});
+
+// ---------- O'chirish ----------
+function removeExpense(id) {
+  expenses = expenses.filter(e => e.id !== id);
+  saveExpenses(expenses);
+  render();
+}
+
+// ---------- Render ----------
+function getFiltered() {
+  const now = new Date();
+  if (currentView === "kunlik") return expenses.filter(e => e.date === todayISO());
+  if (currentView === "haftalik") {
+    const start = startOfWeek(now);
+    return expenses.filter(e => new Date(e.date) >= start);
+  }
+  if (currentView === "oylik") {
+    const start = startOfMonth(now);
+    return expenses.filter(e => new Date(e.date) >= start);
+  }
+  return expenses.slice(); // hammasi
+}
+
+const periodLabels = { kunlik: "Bugun sarflangan summa", haftalik: "Shu hafta sarflangan summa", oylik: "Shu oy sarflangan summa", hammasi: "Boshidan beri sarflangan summa" };
+
+function render() {
+  const filtered = getFiltered();
+  const total = filtered.reduce((s, e) => s + e.amount, 0);
+
+  document.getElementById("totalDisplay").innerHTML = `${fmt(total)} <span>so'm</span>`;
+  document.getElementById("periodLabel").textContent = periodLabels[currentView];
+  document.getElementById("entryCount").textContent = filtered.length;
+
+  // Kategoriya bo'yicha
+  const map = {};
+  filtered.forEach(e => { map[e.category] = (map[e.category] || 0) + e.amount; });
+  const byCategory = Object.entries(map)
+    .map(([name, value]) => ({ name, value, color: colorFor(name) }))
+    .sort((a, b) => b.value - a.value);
+
+  const categoryCard = document.getElementById("categoryCard");
+  const categoryList = document.getElementById("categoryList");
+  if (byCategory.length === 0) {
+    categoryCard.style.display = "none";
+  } else {
+    categoryCard.style.display = "block";
+    const max = byCategory[0].value;
+    categoryList.innerHTML = byCategory.map(c => `
+      <div class="cat-bar-row">
+        <span class="cat-dot" style="background:${c.color}"></span>
+        <span class="cat-name">${c.name}</span>
+        <span class="cat-bar-track"><span class="cat-bar-fill" style="width:${(c.value/max*100).toFixed(0)}%; background:${c.color}"></span></span>
+        <span class="cat-value">${fmt(c.value)} (${Math.round(c.value/total*100)}%)</span>
+      </div>
+    `).join("");
+  }
+
+  // Yozuvlar ro'yxati
+  const entryList = document.getElementById("entryList");
+  if (filtered.length === 0) {
+    entryList.innerHTML = `<div class="empty">Hozircha yozuv yo'q. Yuqoridan qo'shing.</div>`;
+  } else {
+    entryList.innerHTML = filtered.slice().sort((a,b) => b.id - a.id).map(e => `
+      <div class="entry">
+        <div class="entry-left">
+          <span class="entry-dot" style="background:${colorFor(e.category)}"></span>
+          <div>
+            <div class="entry-desc">${escapeHtml(e.desc)}</div>
+            <div class="entry-meta">${e.category} · ${e.date}</div>
+          </div>
+        </div>
+        <div class="entry-right">
+          <span class="entry-amount">${fmt(e.amount)}</span>
+          <button class="del-btn" onclick="removeExpense(${e.id})">✕</button>
+        </div>
+      </div>
+    `).join("");
+  }
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+window.removeExpense = removeExpense;
+
+render();
+
+// ---------- Service worker (internetsiz ishlashi uchun) ----------
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch(() => {});
+  });
+}
+
+// ---------- Ekranga o'rnatish taklifi ----------
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("installBanner").style.display = "block";
+});
+document.getElementById("installBtn").addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById("installBanner").style.display = "none";
+});
+</script>
+</body>
+</html>
