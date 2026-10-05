@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Harajat Kundaligi</title>
+<title>Xarajat Kundaligi</title>
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#2A2620" />
 <link rel="apple-touch-icon" href="icon.png" />
@@ -17,72 +17,109 @@
   input:focus, select:focus { outline: 2px solid #3F7BD9; outline-offset: 1px; }
   button:focus-visible { outline: 2px solid #3F7BD9; outline-offset: 2px; }
 
-  .header { background: #2A2620; color: #F6F3EE; padding: 32px 20px 26px; }
-  .header-label { display: flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; margin-bottom: 6px; }
+  .header { background: #2A2620; color: #F6F3EE; padding: 32px 20px 26px; padding-top: max(32px, env(safe-area-inset-top)); }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .header-label { display: flex; align-items: center; gap: 8px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; }
+  .menu-btn { background: rgba(246,243,238,0.12); color: #F6F3EE; border: none; border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
   .header-total { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
   .header-total span { font-size: 18px; font-weight: 500; opacity: 0.7; }
   .header-sub { font-size: 13px; opacity: 0.6; margin-top: 2px; }
+  .header-compare { font-size: 12px; margin-top: 6px; opacity: 0.85; }
+
+  .menu { display: none; margin: 12px 16px 0; background: #fff; border-radius: 12px; padding: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+  .menu.open { display: block; }
+  .menu button { display: block; width: 100%; text-align: left; background: none; border: none; padding: 10px 12px; font-size: 14px; border-radius: 8px; cursor: pointer; color: #2A2620; }
+  .menu button:hover { background: #F6F3EE; }
 
   .card { background: #fff; margin: 0 16px; border-radius: 16px; padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
   .form-card { margin-top: -16px; }
+  .form-card.editing { outline: 2px solid #D9A83F; }
+  .edit-note { font-size: 12px; color: #A07A20; margin-bottom: 8px; display: none; }
+  .form-card.editing .edit-note { display: block; }
   .row { display: flex; gap: 8px; margin-bottom: 8px; }
-  .row input[type="text"], .row input[type="date"] { padding: 10px 12px; border-radius: 10px; border: 1px solid #E4DFD5; font-size: 15px; }
+  .row input[type="text"], .row input[type="date"] { padding: 10px 12px; border-radius: 10px; border: 1px solid #E4DFD5; font-size: 15px; min-width: 0; }
   .row input[type="text"] { flex: 1; }
   .row input[type="date"] { color: #5A5548; font-size: 13px; }
   .full { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #E4DFD5; font-size: 15px; margin-bottom: 8px; }
-  select.full-select { flex: 1; padding: 10px 8px; border-radius: 10px; border: 1px solid #E4DFD5; font-size: 13px; color: #5A5548; }
+  select.full-select { flex: 1; min-width: 0; padding: 10px 8px; border-radius: 10px; border: 1px solid #E4DFD5; font-size: 13px; color: #5A5548; background: #fff; }
   .add-btn { display: flex; align-items: center; gap: 6px; background: #3F7BD9; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .cancel-btn { display: none; background: #EDE8DE; color: #5A5548; border: none; border-radius: 10px; padding: 10px 12px; font-size: 14px; cursor: pointer; }
+  .form-card.editing .cancel-btn { display: block; }
   .error { color: #D9455F; font-size: 12px; margin-top: 6px; }
 
   .tabs { display: flex; gap: 8px; padding: 20px 16px 4px; }
   .tab { flex: 1; padding: 9px 0; border-radius: 10px; border: none; background: #EDE8DE; color: #5A5548; font-size: 13px; font-weight: 600; cursor: pointer; }
   .tab.active { background: #2A2620; color: #F6F3EE; }
 
+  .search { margin: 12px 16px 0; width: calc(100% - 32px); padding: 10px 12px; border-radius: 10px; border: 1px solid #E4DFD5; font-size: 14px; background: #fff; }
+
   .section-title { font-size: 13px; font-weight: 600; color: #5A5548; margin: 20px 16px 8px 20px; display: flex; align-items: center; gap: 6px; }
 
-  .cat-bar-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; }
+  .cat-bar-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; cursor: pointer; border-radius: 6px; }
+  .cat-bar-row.selected { background: #F6F3EE; }
   .cat-dot { width: 9px; height: 9px; border-radius: 5px; flex-shrink: 0; }
   .cat-bar-track { flex: 1; height: 8px; background: #EEE9DE; border-radius: 4px; overflow: hidden; }
-  .cat-bar-fill { height: 100%; border-radius: 4px; }
-  .cat-name { width: 108px; flex-shrink: 0; }
-  .cat-value { width: 92px; text-align: right; font-weight: 600; flex-shrink: 0; }
+  .cat-bar-fill { display: block; height: 100%; border-radius: 4px; }
+  .cat-name { width: 100px; flex-shrink: 0; }
+  .cat-value { width: 104px; text-align: right; font-weight: 600; flex-shrink: 0; }
+  .filter-chip { display: inline-flex; align-items: center; gap: 6px; background: #2A2620; color: #F6F3EE; border: none; border-radius: 12px; padding: 3px 10px; font-size: 12px; cursor: pointer; margin-left: 6px; }
 
   .list-wrap { margin: 0 16px; }
   .empty { text-align: center; color: #8A8578; font-size: 13px; padding: 24px 0; }
-  .entry { background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-  .entry-left { display: flex; align-items: center; gap: 10px; }
+  .entry { background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .entry-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .entry-left > div { min-width: 0; }
   .entry-dot { width: 10px; height: 10px; border-radius: 5px; flex-shrink: 0; }
-  .entry-desc { font-size: 14px; font-weight: 600; }
+  .entry-desc { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .entry-meta { font-size: 12px; color: #8A8578; }
-  .entry-right { display: flex; align-items: center; gap: 10px; }
+  .entry-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .entry-amount { font-size: 14px; font-weight: 700; }
   .del-btn { background: none; border: none; color: #C9C2B4; cursor: pointer; padding: 4px; font-size: 16px; line-height: 1; }
 
   .install-banner { margin: 16px; padding: 12px 14px; background: #EAF1FB; border: 1px solid #C9DCF3; border-radius: 12px; font-size: 13px; color: #2A2620; display: none; }
   .install-banner button { margin-top: 8px; background: #3F7BD9; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  .toast { position: fixed; left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); background: #2A2620; color: #F6F3EE; border-radius: 12px; padding: 12px 14px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; transform: translateY(200%); opacity: 0; pointer-events: none; transition: transform .2s, opacity .2s; z-index: 10; }
+  .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  .toast button { background: none; border: none; color: #8FB5F0; font-weight: 700; font-size: 14px; cursor: pointer; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-label">💼 Harajat kundaligi</div>
+  <div class="header-top">
+    <div class="header-label">💼 Xarajat kundaligi</div>
+    <button class="menu-btn" id="menuBtn" aria-label="Menyu">⋯ Zaxira</button>
+  </div>
   <div class="header-total" id="totalDisplay">0 <span>so'm</span></div>
   <div class="header-sub" id="periodLabel">Bugun sarflangan summa</div>
+  <div class="header-compare" id="compareLabel"></div>
 </div>
 
-<div class="card form-card">
+
+
+<div class="card form-card" id="formCard">
+  <div class="edit-note">✏️ Yozuvni tahrirlayapsiz</div>
   <div class="row">
-    <input type="text" id="amountInput" inputmode="numeric" placeholder="Summa" />
+    <input type="text" id="amountInput" inputmode="numeric" placeholder="Summa" autocomplete="off" />
     <input type="date" id="dateInput" />
   </div>
-  <input type="text" class="full" id="descInput" placeholder="Nimaga sarfladingiz? (mas: tushlik, taksi, svet)" />
+  <input type="text" class="full" id="descInput" placeholder="Nimaga sarfladingiz? (mas: tushlik, taksi, svet)" autocomplete="off" />
   <div class="row" style="margin-bottom:0;">
     <select class="full-select" id="categorySelect">
       <option value="">Avtomatik kategoriya</option>
     </select>
+    <button class="cancel-btn" id="cancelBtn">Bekor</button>
     <button class="add-btn" id="addBtn">+ Qo'shish</button>
   </div>
   <div class="error" id="errorMsg"></div>
+</div>
+
+<div class="menu" id="menu">
+  <button id="exportJsonBtn">⬇️ Zaxira nusxa olish (JSON)</button>
+  <button id="exportCsvBtn">📄 Excel uchun yuklab olish (CSV)</button>
+  <button id="importBtn">⬆️ Zaxiradan tiklash (JSON)</button>
+  <input type="file" id="importFile" accept="application/json,.json" hidden />
 </div>
 
 <div id="installBanner" class="install-banner">
@@ -97,100 +134,189 @@
   <button class="tab" data-view="hammasi">Barchasi</button>
 </div>
 
+<input type="search" class="search" id="searchInput" placeholder="🔍 Qidirish..." />
+
 <div class="section-title">📊 Kategoriyalar bo'yicha</div>
 <div class="card" id="categoryCard" style="display:none;">
   <div id="categoryList"></div>
 </div>
 
-<div class="section-title">🗓️ Yozuvlar (<span id="entryCount">0</span>)</div>
+<div class="section-title"><span>🗓️ Yozuvlar (<span id="entryCount">0</span>)</span><span id="filterChip"></span></div>
 <div class="list-wrap" id="entryList"></div>
+
+<div class="toast" id="toast"><span id="toastText"></span><button id="toastAction"></button></div>
 
 <script>
 // ---------- Kategoriya aniqlash lug'ati ----------
 const CATEGORY_RULES = [
-  { name: "Oziq-ovqat", color: "#D97B3F", keywords: ["ovqat","non","osh","palov","restoran","kafe","abed","tushlik","nonushta","kechki","shashlik","manti","somsa","choy","qahva","market","do'kon","dokon","produkt"] },
-  { name: "Transport", color: "#3F7BD9", keywords: ["taxi","taksi","yol","yo'l","benzin","avtobus","metro","marshrutka","moshina","mashina","transport","yandex"] },
-  { name: "Kommunal", color: "#4FA37A", keywords: ["svet","gaz","suv","internet","telefon","kommunal","wifi","wi-fi","elektr","mobil"] },
-  { name: "Kiyim-kechak", color: "#B15FC7", keywords: ["kiyim","poyabzal","kurtka","koylak","shim","futbolka"] },
-  { name: "Sog'liq", color: "#D9455F", keywords: ["dori","shifokor","dorixona","tibbiyot","vrach","kasalxona","vitamin"] },
-  { name: "Ta'lim", color: "#3FA0D9", keywords: ["kitob","kurs","talim","ta'lim","maktab","universitet","repetitor","dars"] },
-  { name: "Ko'ngilochar", color: "#D9A83F", keywords: ["kino","oyin","o'yin","konsert","sayohat","klub","bilyard"] },
+  { name: "Oziq-ovqat", color: "#D97B3F", keywords: ["ovqat","non","osh","palov","restoran","kafe","abed","tushlik","nonushta","kechki","shashlik","manti","somsa","choy","qahva","market","do'kon","dokon","produkt","go'sht","gosht","meva","sabzavot"] },
+  { name: "Transport", color: "#3F7BD9", keywords: ["taxi","taksi","yo'l","yol","benzin","metan","propan","avtobus","metro","marshrutka","moshina","mashina","transport","yandex","parkovka"] },
+  { name: "Kommunal", color: "#4FA37A", keywords: ["svet","gaz","suv","internet","telefon","kommunal","wifi","wi-fi","elektr","mobil","ijara"] },
+  { name: "Kiyim-kechak", color: "#B15FC7", keywords: ["kiyim","poyabzal","kurtka","ko'ylak","koylak","shim","futbolka","krossovka","tufli"] },
+  { name: "Sog'liq", color: "#D9455F", keywords: ["dori","shifokor","dorixona","tibbiyot","vrach","kasalxona","vitamin","stomatolog","tish"] },
+  { name: "Ta'lim", color: "#3FA0D9", keywords: ["kitob","kurs","talim","ta'lim","maktab","universitet","kontrakt","repetitor","dars"] },
+  { name: "Ko'ngilochar", color: "#D9A83F", keywords: ["kino","oyin","o'yin","konsert","sayohat","klub","bilyard","futbol"] },
 ];
 const OTHER = { name: "Boshqa", color: "#8A8578" };
 const ALL_CATEGORIES = [...CATEGORY_RULES.map(r => r.name), OTHER.name];
 
+// So'zlarni ajratish: "gaz" -> "gazeta"ga mos kelmasin, lekin "taksiga", "tushlikka" mos kelsin (so'z BOSHIDAN tekshiriladi)
+function normalize(s) {
+  return s.toLowerCase().replace(/[‘’ʻʼ`´]/g, "'");
+}
+// Qisqa so'zlar uchun faqat o'zbekcha qo'shimchalarga ruxsat: "gaz" -> "gazga" ha, "gazeta" yo'q
+const SUFFIXES = ["ga","ka","qa","ni","da","dan","ning","lar","larga","im","imga","ing","lik","likka","xona","xonada","xonaga","chi","dagi"];
 function detectCategory(desc) {
-  const d = desc.toLowerCase();
+  const words = normalize(desc).split(/[^a-z0-9'а-яёўқғҳ-]+/i).filter(Boolean);
+  const match = (w, k) => w === k || (w.startsWith(k) && (k.length >= 5 || SUFFIXES.includes(w.slice(k.length))));
   for (const rule of CATEGORY_RULES) {
-    if (rule.keywords.some(k => d.includes(k))) return rule.name;
+    if (rule.keywords.some(k => words.some(w => match(w, k)))) return rule.name;
   }
   return OTHER.name;
 }
 function colorFor(name) {
   return CATEGORY_RULES.find(r => r.name === name)?.color || OTHER.color;
 }
-function fmt(n) { return new Intl.NumberFormat("uz-UZ").format(Math.round(n)); }
-function todayISO() { return new Date().toISOString().slice(0,10); }
-function startOfWeek(d) {
-  const date = new Date(d);
-  const day = (date.getDay() + 6) % 7;
-  date.setDate(date.getDate() - day);
-  date.setHours(0,0,0,0);
-  return date;
+function fmt(n) { return new Intl.NumberFormat("ru-RU").format(Math.round(n)).replace(/ /g, " "); }
+
+// ---------- Sana (MAHALLIY vaqt bo'yicha, UTC emas) ----------
+function toISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-function startOfMonth(d) {
+function todayISO() { return toISO(new Date()); }
+function startOfWeekISO(d = new Date()) {
   const date = new Date(d);
-  date.setDate(1);
-  date.setHours(0,0,0,0);
-  return date;
+  date.setDate(date.getDate() - (date.getDay() + 6) % 7);
+  return toISO(date);
+}
+function startOfMonthISO(d = new Date()) { return toISO(new Date(d.getFullYear(), d.getMonth(), 1)); }
+function addDaysISO(iso, n) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return toISO(new Date(y, m - 1, d + n));
 }
 
 // ---------- Ma'lumotlarni saqlash (telefon xotirasida, localStorage) ----------
-const STORAGE_KEY = "harajat_kundaligi_v1";
+const STORAGE_KEY = "harajat_kundaligi_v1"; // eski kalit saqlanadi — mavjud ma'lumotlar yo'qolmaydi
 function loadExpenses() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { return []; }
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return Array.isArray(data) ? data : [];
+  } catch { return []; }
 }
 function saveExpenses(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+  catch { showToast("Saqlab bo'lmadi — xotira to'lgan bo'lishi mumkin"); }
 }
 
 let expenses = loadExpenses();
 let currentView = "kunlik";
+let editingId = null;
+let categoryFilter = null;
+let searchQuery = "";
+
+const $ = id => document.getElementById(id);
+const amountInput = $("amountInput"), descInput = $("descInput"), dateInput = $("dateInput");
+const categorySelect = $("categorySelect"), errorMsg = $("errorMsg"), formCard = $("formCard");
 
 // ---------- Select ro'yxatini to'ldirish ----------
-const categorySelect = document.getElementById("categorySelect");
 ALL_CATEGORIES.forEach(c => {
   const opt = document.createElement("option");
   opt.value = c; opt.textContent = c;
   categorySelect.appendChild(opt);
 });
-document.getElementById("dateInput").value = todayISO();
+dateInput.value = todayISO();
 
-// ---------- Qo'shish ----------
-document.getElementById("addBtn").addEventListener("click", () => {
-  const amountInput = document.getElementById("amountInput");
-  const descInput = document.getElementById("descInput");
-  const dateInput = document.getElementById("dateInput");
-  const errorMsg = document.getElementById("errorMsg");
+// ---------- Summani yozish paytida formatlash: 150000 -> 150 000 ----------
+function parseAmount(s) { return parseInt(String(s).replace(/\D/g, ""), 10) || 0; }
+amountInput.addEventListener("input", () => {
+  const n = parseAmount(amountInput.value);
+  amountInput.value = n ? fmt(n) : "";
+});
 
-  const val = parseFloat(amountInput.value.replace(/[^0-9.]/g, ""));
-  if (!val || val <= 0) { errorMsg.textContent = "Summani to'g'ri kiriting"; return; }
-  if (!descInput.value.trim()) { errorMsg.textContent = "Nima uchun sarflaganingizni yozing"; return; }
+// ---------- Qo'shish / Saqlash ----------
+function submit() {
+  const val = parseAmount(amountInput.value);
+  const desc = descInput.value.trim();
+  if (!val) { errorMsg.textContent = "Summani to'g'ri kiriting"; amountInput.focus(); return; }
+  if (!desc) { errorMsg.textContent = "Nima uchun sarflaganingizni yozing"; descInput.focus(); return; }
 
-  const chosenCat = categorySelect.value || detectCategory(descInput.value);
-  expenses.unshift({
-    id: Date.now(),
-    amount: val,
-    desc: descInput.value.trim(),
-    category: chosenCat,
-    date: dateInput.value || todayISO(),
-  });
+  const category = categorySelect.value || detectCategory(desc);
+  const date = dateInput.value || todayISO();
+
+  if (editingId !== null) {
+    const e = expenses.find(x => x.id === editingId);
+    if (e) Object.assign(e, { amount: val, desc, category, date });
+    showToast("Yozuv yangilandi");
+  } else {
+    expenses.unshift({ id: Date.now(), amount: val, desc, category, date });
+  }
   saveExpenses(expenses);
-
+  resetForm();
+  render();
+}
+function resetForm() {
+  editingId = null;
   amountInput.value = ""; descInput.value = ""; categorySelect.value = ""; errorMsg.textContent = "";
+  dateInput.value = todayISO();
+  formCard.classList.remove("editing");
+  $("addBtn").textContent = "+ Qo'shish";
+}
+$("addBtn").addEventListener("click", submit);
+$("cancelBtn").addEventListener("click", resetForm);
+[amountInput, descInput].forEach(el => el.addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); submit(); }
+}));
+
+// ---------- Tahrirlash ----------
+function startEdit(id) {
+  const e = expenses.find(x => x.id === id);
+  if (!e) return;
+  editingId = id;
+  amountInput.value = fmt(e.amount);
+  descInput.value = e.desc;
+  dateInput.value = e.date;
+  categorySelect.value = e.category;
+  formCard.classList.add("editing");
+  $("addBtn").textContent = "✓ Saqlash";
+  errorMsg.textContent = "";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  amountInput.focus();
+}
+
+// ---------- O'chirish (qaytarish imkoniyati bilan) ----------
+let lastDeleted = null;
+function removeExpense(id) {
+  const idx = expenses.findIndex(e => e.id === id);
+  if (idx === -1) return;
+  lastDeleted = { item: expenses[idx], idx };
+  expenses.splice(idx, 1);
+  if (editingId === id) resetForm();
+  saveExpenses(expenses);
+  render();
+  showToast("Yozuv o'chirildi", "Qaytarish", () => {
+    if (!lastDeleted) return;
+    expenses.splice(lastDeleted.idx, 0, lastDeleted.item);
+    lastDeleted = null;
+    saveExpenses(expenses);
+    render();
+  });
+}
+
+// ---------- Ro'yxatdagi bosishlar ----------
+$("entryList").addEventListener("click", e => {
+  const del = e.target.closest(".del-btn");
+  const row = e.target.closest(".entry");
+  if (del) { e.stopPropagation(); removeExpense(Number(del.dataset.id)); return; }
+  if (row) startEdit(Number(row.dataset.id));
+});
+$("categoryList").addEventListener("click", e => {
+  const row = e.target.closest(".cat-bar-row");
+  if (!row) return;
+  categoryFilter = categoryFilter === row.dataset.cat ? null : row.dataset.cat;
   render();
 });
+$("filterChip").addEventListener("click", () => { categoryFilter = null; render(); });
+$("searchInput").addEventListener("input", e => { searchQuery = normalize(e.target.value.trim()); render(); });
 
 // ---------- Tab almashtirish ----------
 document.querySelectorAll(".tab").forEach(btn => {
@@ -202,90 +328,174 @@ document.querySelectorAll(".tab").forEach(btn => {
   });
 });
 
-// ---------- O'chirish ----------
-function removeExpense(id) {
-  expenses = expenses.filter(e => e.id !== id);
-  saveExpenses(expenses);
-  render();
+// ---------- Filtrlash ----------
+function inRange(from, to) { return expenses.filter(e => e.date >= from && e.date <= to); }
+function getPeriod() {
+  const today = todayISO();
+  if (currentView === "kunlik") return inRange(today, today);
+  if (currentView === "haftalik") return inRange(startOfWeekISO(), "9999-12-31");
+  if (currentView === "oylik") return inRange(startOfMonthISO(), "9999-12-31");
+  return expenses.slice();
 }
-
-// ---------- Render ----------
-function getFiltered() {
-  const now = new Date();
-  if (currentView === "kunlik") return expenses.filter(e => e.date === todayISO());
-  if (currentView === "haftalik") {
-    const start = startOfWeek(now);
-    return expenses.filter(e => new Date(e.date) >= start);
+// Oldingi davrning shu paytgacha bo'lgan qismi bilan solishtirish
+function getPreviousTotal() {
+  const today = todayISO();
+  let list = null;
+  if (currentView === "kunlik") { const y = addDaysISO(today, -1); list = inRange(y, y); }
+  else if (currentView === "haftalik") { const s = startOfWeekISO(); list = inRange(addDaysISO(s, -7), addDaysISO(today, -7)); }
+  else if (currentView === "oylik") {
+    const now = new Date();
+    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastDayPrev = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    const prevSame = new Date(now.getFullYear(), now.getMonth() - 1, Math.min(now.getDate(), lastDayPrev));
+    list = inRange(toISO(prevStart), toISO(prevSame));
   }
-  if (currentView === "oylik") {
-    const start = startOfMonth(now);
-    return expenses.filter(e => new Date(e.date) >= start);
-  }
-  return expenses.slice(); // hammasi
+  return list ? list.reduce((s, e) => s + e.amount, 0) : null;
 }
 
 const periodLabels = { kunlik: "Bugun sarflangan summa", haftalik: "Shu hafta sarflangan summa", oylik: "Shu oy sarflangan summa", hammasi: "Boshidan beri sarflangan summa" };
+const compareNames = { kunlik: "kechaga", haftalik: "o'tgan haftaga", oylik: "o'tgan oyga" };
 
+// ---------- Render ----------
 function render() {
-  const filtered = getFiltered();
-  const total = filtered.reduce((s, e) => s + e.amount, 0);
+  const period = getPeriod();
+  const total = period.reduce((s, e) => s + e.amount, 0);
 
-  document.getElementById("totalDisplay").innerHTML = `${fmt(total)} <span>so'm</span>`;
-  document.getElementById("periodLabel").textContent = periodLabels[currentView];
-  document.getElementById("entryCount").textContent = filtered.length;
+  $("totalDisplay").innerHTML = `${fmt(total)} <span>so'm</span>`;
+  $("periodLabel").textContent = periodLabels[currentView];
+
+  const prev = getPreviousTotal();
+  const cmp = $("compareLabel");
+  if (prev === null || (prev === 0 && total === 0)) cmp.textContent = "";
+  else if (prev === 0) cmp.textContent = `${compareNames[currentView]} nisbatan: avval xarajat yo'q edi`;
+  else {
+    const diff = Math.round((total - prev) / prev * 100);
+    cmp.textContent = diff === 0 ? `${compareNames[currentView]} nisbatan o'zgarishsiz`
+      : `${compareNames[currentView]} nisbatan ${diff > 0 ? "▲" : "▼"} ${Math.abs(diff)}% ${diff > 0 ? "ko'p" : "kam"}`;
+  }
 
   // Kategoriya bo'yicha
   const map = {};
-  filtered.forEach(e => { map[e.category] = (map[e.category] || 0) + e.amount; });
+  period.forEach(e => { map[e.category] = (map[e.category] || 0) + e.amount; });
   const byCategory = Object.entries(map)
     .map(([name, value]) => ({ name, value, color: colorFor(name) }))
     .sort((a, b) => b.value - a.value);
 
-  const categoryCard = document.getElementById("categoryCard");
-  const categoryList = document.getElementById("categoryList");
   if (byCategory.length === 0) {
-    categoryCard.style.display = "none";
+    $("categoryCard").style.display = "none";
   } else {
-    categoryCard.style.display = "block";
+    $("categoryCard").style.display = "block";
     const max = byCategory[0].value;
-    categoryList.innerHTML = byCategory.map(c => `
-      <div class="cat-bar-row">
+    $("categoryList").innerHTML = byCategory.map(c => `
+      <div class="cat-bar-row ${categoryFilter === c.name ? "selected" : ""}" data-cat="${escapeHtml(c.name)}">
         <span class="cat-dot" style="background:${c.color}"></span>
-        <span class="cat-name">${c.name}</span>
-        <span class="cat-bar-track"><span class="cat-bar-fill" style="width:${(c.value/max*100).toFixed(0)}%; background:${c.color}"></span></span>
-        <span class="cat-value">${fmt(c.value)} (${Math.round(c.value/total*100)}%)</span>
+        <span class="cat-name">${escapeHtml(c.name)}</span>
+        <span class="cat-bar-track"><span class="cat-bar-fill" style="width:${(c.value / max * 100).toFixed(0)}%; background:${c.color}"></span></span>
+        <span class="cat-value">${fmt(c.value)} (${Math.round(c.value / total * 100)}%)</span>
       </div>
     `).join("");
   }
 
-  // Yozuvlar ro'yxati
-  const entryList = document.getElementById("entryList");
-  if (filtered.length === 0) {
-    entryList.innerHTML = `<div class="empty">Hozircha yozuv yo'q. Yuqoridan qo'shing.</div>`;
+  // Yozuvlar ro'yxati (kategoriya va qidiruv filtri bilan)
+  let list = period;
+  if (categoryFilter) list = list.filter(e => e.category === categoryFilter);
+  if (searchQuery) list = list.filter(e => normalize(e.desc).includes(searchQuery) || normalize(e.category).includes(searchQuery));
+
+  $("entryCount").textContent = list.length;
+  $("filterChip").innerHTML = categoryFilter ? `<button class="filter-chip">${escapeHtml(categoryFilter)} ✕</button>` : "";
+
+  const entryList = $("entryList");
+  if (list.length === 0) {
+    entryList.innerHTML = `<div class="empty">${period.length ? "Mos yozuv topilmadi." : "Hozircha yozuv yo'q. Yuqoridan qo'shing."}</div>`;
   } else {
-    entryList.innerHTML = filtered.slice().sort((a,b) => b.id - a.id).map(e => `
-      <div class="entry">
+    entryList.innerHTML = list.slice()
+      .sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id)
+      .map(e => `
+      <div class="entry" data-id="${e.id}">
         <div class="entry-left">
           <span class="entry-dot" style="background:${colorFor(e.category)}"></span>
           <div>
             <div class="entry-desc">${escapeHtml(e.desc)}</div>
-            <div class="entry-meta">${e.category} · ${e.date}</div>
+            <div class="entry-meta">${escapeHtml(e.category)} · ${e.date}</div>
           </div>
         </div>
         <div class="entry-right">
           <span class="entry-amount">${fmt(e.amount)}</span>
-          <button class="del-btn" onclick="removeExpense(${e.id})">✕</button>
+          <button class="del-btn" data-id="${e.id}" aria-label="O'chirish">✕</button>
         </div>
       </div>
     `).join("");
   }
 }
 function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
-window.removeExpense = removeExpense;
+
+// ---------- Toast (xabar) ----------
+let toastTimer;
+function showToast(text, actionText, action) {
+  const t = $("toast"), btn = $("toastAction");
+  $("toastText").textContent = text;
+  btn.textContent = actionText || "";
+  btn.style.display = actionText ? "block" : "none";
+  btn.onclick = () => { action && action(); t.classList.remove("show"); };
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 5000);
+}
+
+// ---------- Zaxira: eksport / import ----------
+$("menuBtn").addEventListener("click", () => $("menu").classList.toggle("open"));
+function download(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$("exportJsonBtn").addEventListener("click", () => {
+  download(`xarajat-zaxira-${todayISO()}.json`, JSON.stringify(expenses, null, 2), "application/json");
+  $("menu").classList.remove("open");
+});
+$("exportCsvBtn").addEventListener("click", () => {
+  const esc = v => `"${String(v).replace(/"/g, '""')}"`;
+  const rows = [["Sana", "Tavsif", "Kategoriya", "Summa"].map(esc).join(";")]
+    .concat(expenses.slice().sort((a, b) => a.date.localeCompare(b.date))
+      .map(e => [e.date, e.desc, e.category, e.amount].map(esc).join(";")));
+  download(`xarajatlar-${todayISO()}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
+  $("menu").classList.remove("open");
+});
+$("importBtn").addEventListener("click", () => $("importFile").click());
+$("importFile").addEventListener("change", async e => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!Array.isArray(data)) throw new Error();
+    const valid = data.filter(x => x && typeof x.amount === "number" && x.amount > 0 && typeof x.desc === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x.date));
+    const existing = new Set(expenses.map(x => x.id));
+    let added = 0;
+    valid.forEach(x => {
+      const item = { id: Number(x.id) || Date.now() + Math.random(), amount: x.amount, desc: x.desc, category: ALL_CATEGORIES.includes(x.category) ? x.category : detectCategory(x.desc), date: x.date };
+      if (!existing.has(item.id)) { expenses.push(item); existing.add(item.id); added++; }
+    });
+    saveExpenses(expenses);
+    render();
+    showToast(`${added} ta yozuv tiklandi`);
+  } catch {
+    showToast("Fayl noto'g'ri formatda");
+  }
+  $("menu").classList.remove("open");
+});
 
 render();
+
+// Yarim tundan keyin ilova ochiq qolsa ham "bugun" yangilansin
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) { if (!editingId && !amountInput.value) dateInput.value = todayISO(); render(); }
+});
 
 // ---------- Service worker (internetsiz ishlashi uchun) ----------
 if ("serviceWorker" in navigator) {
@@ -299,14 +509,14 @@ let deferredPrompt;
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  document.getElementById("installBanner").style.display = "block";
+  $("installBanner").style.display = "block";
 });
-document.getElementById("installBtn").addEventListener("click", async () => {
+$("installBtn").addEventListener("click", async () => {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
   await deferredPrompt.userChoice;
   deferredPrompt = null;
-  document.getElementById("installBanner").style.display = "none";
+  $("installBanner").style.display = "none";
 });
 </script>
 </body>

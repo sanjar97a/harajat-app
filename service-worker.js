@@ -1,5 +1,5 @@
-
-const CACHE_NAME = "harajat-kundaligi-v2";
+// Har bir yangi relizda versiyani oshiring (v3, v4...) — eski kesh avtomatik o'chadi
+const CACHE_NAME = "xarajat-kundaligi-v3";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
@@ -24,18 +24,36 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
+
+  // Sahifaning o'zi: avval internetdan (yangi versiya darhol keladi), bo'lmasa keshdan
+  if (req.mode === "navigate") {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put("./index.html", copy));
+          return res;
+        })
+        .catch(() => caches.match("./index.html").then((r) => r || caches.match("./")))
+    );
+    return;
+  }
+
+  // Qolgan fayllar: keshdan tez beriladi, fonda yangilanadi
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request)
-          .then((response) => {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-            return response;
-          })
-          .catch(() => cached)
-      );
+    caches.match(req).then((cached) => {
+      const network = fetch(req)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => cached);
+      return cached || network;
     })
   );
 });

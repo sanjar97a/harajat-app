@@ -1,7 +1,7 @@
 {
-  "name": "Harajat Kundaligi",
-  "short_name": "Harajat",
-  "description": "Kunlik, haftalik va oylik harajatlarni avtomatik kategoriyalarga ajratib boruvchi ilova",
+  "name": "Xarajat Kundaligi",
+  "short_name": "Xarajat",
+  "description": "Kunlik, haftalik va oylik xarajatlarni avtomatik kategoriyalarga ajratib boruvchi ilova",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -10,6 +10,6 @@
   "theme_color": "#2A2620",
   "lang": "uz",
   "icons": [
-    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }
