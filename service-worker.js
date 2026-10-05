@@ -1,5 +1,5 @@
 // Har bir yangi relizda versiyani oshiring (v3, v4...) — eski kesh avtomatik o'chadi
-const CACHE_NAME = "xarajat-kundaligi-v4";
+const CACHE_NAME = "xarajat-kundaligi-v5";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",

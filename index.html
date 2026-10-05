@@ -160,37 +160,46 @@
   .toast.warn { background: #7A4A0C; }
   .toast.danger { background: #8E2235; }
   .toast button { background: none; border: none; color: #8FB5F0; font-weight: 700; font-size: 14px; cursor: pointer; flex-shrink: 0; }
+  .mic-btn { flex-shrink: 0; width: 44px; border: 1px solid var(--border); background: var(--surface); border-radius: 10px; font-size: 18px; cursor: pointer; }
+  .mic-btn.listening { background: var(--danger); border-color: var(--danger); animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(217,69,95,.5); } 50% { box-shadow: 0 0 0 8px rgba(217,69,95,0); } }
+  .mic-status { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .mic-status:empty { display: none; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="header-top">
-    <div class="header-label">💼 Xarajat kundaligi</div>
-    <button class="menu-btn" id="menuBtn" aria-label="Sozlamalar">⚙️ Sozlamalar</button>
+    <div class="header-label">💼 <span data-i18n="appTitle"></span></div>
+    <button class="menu-btn" id="menuBtn" data-i18n="settings"></button>
   </div>
-  <div class="header-total" id="totalDisplay">0 <span>so'm</span></div>
-  <div class="header-sub" id="periodLabel">Bugun sarflangan summa</div>
+  <div class="header-total" id="totalDisplay">0</div>
+  <div class="header-sub" id="periodLabel"></div>
   <div class="header-compare" id="compareLabel"></div>
   <div class="header-balance" id="balanceRow"></div>
 </div>
 
 <div class="card form-card" id="formCard">
-  <div class="edit-note">✏️ Yozuvni tahrirlayapsiz</div>
+  <div class="edit-note" data-i18n="editing"></div>
   <div class="type-toggle" id="typeToggle">
-    <button class="active" data-type="expense">− Xarajat</button>
-    <button data-type="income">+ Daromad</button>
+    <button class="active" data-type="expense" data-i18n="expenseBtn"></button>
+    <button data-type="income" data-i18n="incomeBtn"></button>
   </div>
   <div class="row">
-    <input type="text" id="amountInput" inputmode="numeric" placeholder="Summa" autocomplete="off" />
+    <input type="text" id="amountInput" inputmode="numeric" data-i18n-ph="amountPh" autocomplete="off" />
     <input type="date" id="dateInput" />
   </div>
-  <input type="text" class="full" id="descInput" placeholder="Nimaga sarfladingiz? (mas: tushlik, taksi, svet)" autocomplete="off" />
+  <div class="row">
+    <input type="text" id="descInput" autocomplete="off" />
+    <button class="mic-btn" id="micBtn" type="button" hidden>🎙️</button>
+  </div>
   <div class="row" style="margin-bottom:0;">
     <select class="full-select" id="categorySelect"></select>
-    <button class="ghost-btn cancel-btn" id="cancelBtn">Bekor</button>
-    <button class="add-btn" id="addBtn">+ Qo'shish</button>
+    <button class="ghost-btn cancel-btn" id="cancelBtn" data-i18n="cancel"></button>
+    <button class="add-btn" id="addBtn"></button>
   </div>
+  <div class="mic-status" id="micStatus"></div>
   <div class="error" id="errorMsg"></div>
 </div>
 
@@ -198,212 +207,438 @@
 <div class="quick-hint" id="quickHint"></div>
 
 <div class="menu" id="menu">
-  <div class="menu-label">Mavzu</div>
+  <div class="menu-label">Til · Тил · Язык</div>
+  <div class="seg" id="langSeg">
+    <button data-lang="lat">Lotin</button>
+    <button data-lang="cyr">Кирилл</button>
+    <button data-lang="ru">Русский</button>
+  </div>
+  <div class="menu-label" data-i18n="themeLabel"></div>
   <div class="seg" id="themeSeg">
-    <button data-theme="auto">Avto</button>
-    <button data-theme="light">☀️ Yorug'</button>
-    <button data-theme="dark">🌙 Qorong'i</button>
+    <button data-theme="auto" data-i18n="themeAuto"></button>
+    <button data-theme="light" data-i18n="themeLight"></button>
+    <button data-theme="dark" data-i18n="themeDark"></button>
   </div>
   <div class="menu-sep"></div>
-  <button class="item" id="budgetMenuBtn">🎯 Oylik byudjet</button>
+  <button class="item" id="budgetMenuBtn" data-i18n="budgetMenu"></button>
   <div class="menu-sep"></div>
-  <button class="item" id="exportJsonBtn">⬇️ Zaxira nusxa olish (JSON)</button>
-  <button class="item" id="exportCsvBtn">📄 Excel uchun yuklab olish (CSV)</button>
-  <button class="item" id="importBtn">⬆️ Zaxiradan tiklash (JSON)</button>
+  <button class="item" id="exportJsonBtn" data-i18n="exportJson"></button>
+  <button class="item" id="exportCsvBtn" data-i18n="exportCsv"></button>
+  <button class="item" id="importBtn" data-i18n="importJson"></button>
   <input type="file" id="importFile" accept="application/json,.json" hidden />
 </div>
 
 <div class="panel" id="budgetPanel">
-  <h3>🎯 Oylik byudjet</h3>
-  <p>Bir oyda qancha sarflashni rejalashtirasiz? Bo'sh qoldirilsa — limit yo'q.</p>
+  <h3 data-i18n="budgetMenu"></h3>
+  <p data-i18n="budgetDesc"></p>
   <div id="budgetInputs"></div>
   <div class="panel-actions">
-    <button class="ghost-btn" id="budgetCancel">Yopish</button>
-    <button class="add-btn" id="budgetSave">Saqlash</button>
+    <button class="ghost-btn" id="budgetCancel" data-i18n="close"></button>
+    <button class="add-btn" id="budgetSave" data-i18n="saveBtn"></button>
   </div>
 </div>
 
 <div id="installBanner" class="install-banner">
-  Ilovani telefon ekraniga o'rnatib qo'ying — internetsiz ham ochiladi.
-  <br /><button id="installBtn">Ekranga o'rnatish</button>
+  <span data-i18n="installText"></span>
+  <br /><button id="installBtn" data-i18n="installBtn"></button>
 </div>
 
 <div class="card budget-card" id="budgetCard" style="display:none;"></div>
 
 <div class="tabs">
-  <button class="tab active" data-view="kunlik">Kunlik</button>
-  <button class="tab" data-view="haftalik">Haftalik</button>
-  <button class="tab" data-view="oylik">Oylik</button>
-  <button class="tab" data-view="hammasi">Barchasi</button>
+  <button class="tab active" data-view="kunlik" data-i18n="tab_kunlik"></button>
+  <button class="tab" data-view="haftalik" data-i18n="tab_haftalik"></button>
+  <button class="tab" data-view="oylik" data-i18n="tab_oylik"></button>
+  <button class="tab" data-view="hammasi" data-i18n="tab_hammasi"></button>
 </div>
 
-<input type="search" class="search" id="searchInput" placeholder="🔍 Qidirish..." />
+<input type="search" class="search" id="searchInput" data-i18n-ph="search" />
 
-<div class="section-title">📊 Xarajatlar kategoriyalar bo'yicha</div>
+<div class="section-title" data-i18n="catsTitle"></div>
 <div class="card" id="categoryCard" style="display:none;">
   <div id="categoryList"></div>
 </div>
 
-<div class="section-title"><span>🗓️ Yozuvlar (<span id="entryCount">0</span>)</span><span id="filterChip"></span></div>
+<div class="section-title"><span><span data-i18n="entriesTitle"></span> (<span id="entryCount">0</span>)</span><span id="filterChip"></span></div>
 <div class="list-wrap" id="entryList"></div>
 
 <div class="toast" id="toast"><span id="toastText"></span><button id="toastAction"></button></div>
 
 <script>
-// ---------- Kategoriyalar ----------
+// =====================================================================
+//  TIL (i18n): Lotin — asosiy; Кирилл — lotindan avtomatik o'giriladi; Русский — alohida
+// =====================================================================
+const STR = {
+  lat: {
+    appTitle: "Xarajat kundaligi", settings: "⚙️ Sozlamalar", editing: "✏️ Yozuvni tahrirlayapsiz",
+    expenseBtn: "− Xarajat", incomeBtn: "+ Daromad", amountPh: "Summa",
+    descPhExp: "Nimaga sarfladingiz? (mas: tushlik, taksi)", descPhInc: "Qayerdan keldi? (mas: maosh, buyurtma)",
+    autoCat: "Avtomatik kategoriya", cancel: "Bekor", add: "+ Qo'shish", addIncome: "+ Kirim", saveEdit: "✓ Saqlash",
+    errAmount: "Summani to'g'ri kiriting", errDesc: "Nima uchun sarflaganingizni yozing", errDescInc: "Qayerdan kelganini yozing",
+    themeLabel: "Mavzu", themeAuto: "Avto", themeLight: "☀️ Yorug'", themeDark: "🌙 Qorong'i",
+    budgetMenu: "🎯 Oylik byudjet", exportJson: "⬇️ Zaxira nusxa olish (JSON)", exportCsv: "📄 Excel uchun yuklab olish (CSV)", importJson: "⬆️ Zaxiradan tiklash (JSON)",
+    budgetDesc: "Bir oyda qancha sarflashni rejalashtirasiz? Bo'sh qoldirilsa — limit yo'q.", budgetTotal: "Umumiy oylik limit", noLimit: "limit yo'q",
+    close: "Yopish", saveBtn: "Saqlash",
+    installText: "Ilovani telefon ekraniga o'rnatib qo'ying — internetsiz ham ochiladi.", installBtn: "Ekranga o'rnatish",
+    tab_kunlik: "Kunlik", tab_haftalik: "Haftalik", tab_oylik: "Oylik", tab_hammasi: "Barchasi",
+    search: "🔍 Qidirish...", catsTitle: "📊 Xarajatlar kategoriyalar bo'yicha", entriesTitle: "🗓️ Yozuvlar",
+    period_kunlik: "Bugun sarflangan summa", period_haftalik: "Shu hafta sarflangan summa", period_oylik: "Shu oy sarflangan summa", period_hammasi: "Boshidan beri sarflangan summa",
+    cmp_kunlik: "kechaga", cmp_haftalik: "o'tgan haftaga", cmp_oylik: "o'tgan oyga",
+    cmpNoPrev: "{p} nisbatan: avval xarajat yo'q edi", cmpSame: "{p} nisbatan o'zgarishsiz", cmpMore: "{p} nisbatan ▲ {n}% ko'p", cmpLess: "{p} nisbatan ▼ {n}% kam",
+    income: "Kirim", balance: "Qoldiq", sum: "so'm", mln: "mln", thousand: "ming",
+    budgetCardTitle: "🎯 Bu oylik byudjet", budgetLeft: "Qoldi: <b>{x} so'm</b> · kuniga taxminan {y} so'm ({d} kun)", budgetOverText: "Limitdan {x} so'm oshib ketdi",
+    limitShort: "limit {x}", quickNeedAmount: "summa kiritish",
+    quickHintAmt: "Bir bosishda qo'shiladi · ko'p yozganlaringiz bu yerda paydo bo'ladi", quickHintNo: "Tez yozish uchun bosing · ko'p yozganlaringiz bu yerda paydo bo'ladi",
+    emptyNone: "Hozircha yozuv yo'q. Yuqoridan qo'shing.", emptyNoMatch: "Mos yozuv topilmadi.",
+    tUpdated: "Yozuv yangilandi", tDeleted: "Yozuv o'chirildi", undo: "Qaytarish", tCancelled: "Bekor qilindi", tAdded: "Qo'shildi: {d} — {a}",
+    tBudgetOver: "⚠️ {n}: limitdan {x} so'm oshdi", tBudgetWarn: "{n}: limitning {p}% ishlatildi", tBudgetSaved: "Byudjet saqlandi",
+    tRestored: "{n} ta yozuv tiklandi", tBadFile: "Fayl noto'g'ri formatda", tStorage: "Saqlab bo'lmadi — xotira to'lgan bo'lishi mumkin",
+    micTitle: "Ovoz bilan kiritish", micListening: "🎙️ Gapiring... masalan: «tushlikka o'ttiz besh ming»", micNoSpeech: "Ovoz eshitilmadi, qaytadan urinib ko'ring",
+    micDenied: "Mikrofonga ruxsat berilmagan", micError: "Ovozni tanib bo'lmadi, qaytadan urinib ko'ring", micHeard: "Eshitildi: «{t}» — tekshirib, qo'shing", micNoAmount: "Eshitildi: «{t}» — summani qo'lda kiriting",
+    csvHead: "Sana;Turi;Tavsif;Kategoriya;Summa", csvInc: "Daromad", csvExp: "Xarajat", days: "kun",
+    q_Tushlik: "Tushlik", q_Taksi: "Taksi", q_Non: "Non", q_Svet: "Svet", q_Telefon: "Telefon", q_Maosh: "Maosh", q_Buyurtma: "Buyurtma",
+  },
+  ru: {
+    appTitle: "Дневник расходов", settings: "⚙️ Настройки", editing: "✏️ Редактирование записи",
+    expenseBtn: "− Расход", incomeBtn: "+ Доход", amountPh: "Сумма",
+    descPhExp: "На что потратили? (напр.: обед, такси)", descPhInc: "Откуда доход? (напр.: зарплата, заказ)",
+    autoCat: "Категория автоматически", cancel: "Отмена", add: "+ Добавить", addIncome: "+ Доход", saveEdit: "✓ Сохранить",
+    errAmount: "Введите правильную сумму", errDesc: "Напишите, на что потратили", errDescInc: "Напишите источник дохода",
+    themeLabel: "Тема", themeAuto: "Авто", themeLight: "☀️ Светлая", themeDark: "🌙 Тёмная",
+    budgetMenu: "🎯 Месячный бюджет", exportJson: "⬇️ Резервная копия (JSON)", exportCsv: "📄 Скачать для Excel (CSV)", importJson: "⬆️ Восстановить из копии (JSON)",
+    budgetDesc: "Сколько планируете тратить в месяц? Пустое поле — без лимита.", budgetTotal: "Общий месячный лимит", noLimit: "без лимита",
+    close: "Закрыть", saveBtn: "Сохранить",
+    installText: "Установите приложение на экран телефона — оно работает и без интернета.", installBtn: "Установить",
+    tab_kunlik: "День", tab_haftalik: "Неделя", tab_oylik: "Месяц", tab_hammasi: "Всё",
+    search: "🔍 Поиск...", catsTitle: "📊 Расходы по категориям", entriesTitle: "🗓️ Записи",
+    period_kunlik: "Потрачено сегодня", period_haftalik: "Потрачено за неделю", period_oylik: "Потрачено за месяц", period_hammasi: "Потрачено за всё время",
+    cmp_kunlik: "вчера", cmp_haftalik: "на прошлой неделе", cmp_oylik: "в прошлом месяце",
+    cmpNoPrev: "{p} расходов не было", cmpSame: "столько же, сколько {p}", cmpMore: "▲ на {n}% больше, чем {p}", cmpLess: "▼ на {n}% меньше, чем {p}",
+    income: "Доход", balance: "Остаток", sum: "сум", mln: "млн", thousand: "тыс",
+    budgetCardTitle: "🎯 Бюджет на этот месяц", budgetLeft: "Осталось: <b>{x} сум</b> · примерно {y} сум в день ({d} дн.)", budgetOverText: "Лимит превышен на {x} сум",
+    limitShort: "лимит {x}", quickNeedAmount: "ввести сумму",
+    quickHintAmt: "Добавляется одним нажатием · частые записи появляются здесь", quickHintNo: "Нажмите для быстрого ввода · частые записи появляются здесь",
+    emptyNone: "Пока записей нет. Добавьте сверху.", emptyNoMatch: "Ничего не найдено.",
+    tUpdated: "Запись обновлена", tDeleted: "Запись удалена", undo: "Вернуть", tCancelled: "Отменено", tAdded: "Добавлено: {d} — {a}",
+    tBudgetOver: "⚠️ {n}: лимит превышен на {x} сум", tBudgetWarn: "{n}: использовано {p}% лимита", tBudgetSaved: "Бюджет сохранён",
+    tRestored: "Восстановлено записей: {n}", tBadFile: "Неверный формат файла", tStorage: "Не удалось сохранить — возможно, память заполнена",
+    micTitle: "Голосовой ввод", micListening: "🎙️ Говорите... например: «обед тридцать пять тысяч»", micNoSpeech: "Голос не услышан, попробуйте ещё раз",
+    micDenied: "Нет доступа к микрофону", micError: "Не удалось распознать, попробуйте ещё раз", micHeard: "Услышано: «{t}» — проверьте и нажмите Добавить", micNoAmount: "Услышано: «{t}» — введите сумму вручную",
+    csvHead: "Дата;Тип;Описание;Категория;Сумма", csvInc: "Доход", csvExp: "Расход", days: "дн.",
+    q_Tushlik: "Обед", q_Taksi: "Такси", q_Non: "Хлеб", q_Svet: "Свет", q_Telefon: "Телефон", q_Maosh: "Зарплата", q_Buyurtma: "Заказ",
+  },
+};
+const CAT_RU = {
+  "Oziq-ovqat": "Еда", "Transport": "Транспорт", "Kommunal": "Коммунальные", "Kiyim-kechak": "Одежда", "Sog'liq": "Здоровье",
+  "Ta'lim": "Образование", "Ko'ngilochar": "Развлечения", "Boshqa": "Другое",
+  "Maosh": "Зарплата", "Qo'shimcha ish": "Подработка", "Sovg'a": "Подарок", "Boshqa kirim": "Другой доход",
+};
+
+// Lotin -> Kirill (o'zbek). {x}, <teg> va lotincha qisqartmalar (CSV, JSON, Excel) o'zgarmaydi.
+const L2C_MULTI = [["o'", "ў"], ["g'", "ғ"], ["sh", "ш"], ["ch", "ч"], ["yo", "ё"], ["yu", "ю"], ["ya", "я"], ["ye", "е"]];
+const L2C = { a:"а",b:"б",d:"д",e:"е",f:"ф",g:"г",h:"ҳ",i:"и",j:"ж",k:"к",l:"л",m:"м",n:"н",o:"о",p:"п",q:"қ",r:"р",s:"с",t:"т",u:"у",v:"в",x:"х",y:"й",z:"з","'":"ъ" };
+function latToCyrWord(w) {
+  if (/^(CSV|JSON|Excel)$/.test(w)) return w;
+  let out = "";
+  const lower = w.toLowerCase().replace(/[‘’ʻʼ`]/g, "'");
+  for (let i = 0; i < lower.length;) {
+    const upper = w[i] !== lower[i] && w[i].toLowerCase() === lower[i];
+    let piece = null, len = 1;
+    if (lower.startsWith("yo'", i)) { piece = "й"; len = 1; }   // "yo'q" -> "йўқ", "ё'" emas
+    else for (const [lat, cyr] of L2C_MULTI) if (lower.startsWith(lat, i)) { piece = cyr; len = lat.length; break; }
+    if (!piece) piece = (lower[i] === "e" && i === 0) ? "э" : (L2C[lower[i]] ?? w[i]);
+    out += upper ? piece.toUpperCase() : piece;
+    i += len;
+  }
+  return out;
+}
+function latToCyr(s) {
+  return String(s).replace(/(<[^>]*>|\{[a-z]\})|([A-Za-z'‘’ʻʼ`]+)/g, (m, keep, word) => keep ? keep : latToCyrWord(word));
+}
+// Kirill -> Lotin (kategoriya aniqlash va son tanish uchun; rus so'zlari ham taxminan o'giriladi)
+const C2L = { "а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"yo","ж":"j","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"x","ц":"ts","ч":"ch","ш":"sh","щ":"sh","ъ":"'","ы":"i","ь":"","э":"e","ю":"yu","я":"ya","ў":"o'","қ":"q","ғ":"g'","ҳ":"h" };
+const cyrToLat = s => String(s).toLowerCase().replace(/[а-яёўқғҳ]/g, c => C2L[c] ?? c);
+
+let lang = "lat";
+function t(key, vars) {
+  let s = (lang === "ru" ? STR.ru[key] : STR.lat[key]) ?? STR.lat[key] ?? key;
+  if (lang === "cyr") s = latToCyr(s);
+  if (vars) s = s.replace(/\{(\w)\}/g, (_, k) => vars[k] ?? "");
+  return s;
+}
+function catLabel(name) {
+  if (lang === "ru") return CAT_RU[name] || name;
+  if (lang === "cyr") return latToCyr(name);
+  return name;
+}
+function applyI18n() {
+  document.documentElement.lang = lang === "ru" ? "ru" : lang === "cyr" ? "uz-Cyrl" : "uz";
+  document.title = lang === "ru" ? "Дневник расходов" : lang === "cyr" ? "Харажат кундалиги" : "Xarajat Kundaligi";
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll("#langSeg button").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+  $("micBtn").title = t("micTitle");
+  $("micBtn").setAttribute("aria-label", t("micTitle"));
+}
+
+// =====================================================================
+//  KATEGORIYALAR
+// =====================================================================
 const CATEGORY_RULES = [
-  { name: "Oziq-ovqat", color: "#D97B3F", keywords: ["ovqat","non","osh","palov","restoran","kafe","abed","tushlik","nonushta","kechki","shashlik","manti","somsa","choy","qahva","market","do'kon","dokon","produkt","go'sht","gosht","meva","sabzavot"] },
-  { name: "Transport", color: "#3F7BD9", keywords: ["taxi","taksi","yo'l","yol","benzin","metan","propan","avtobus","metro","marshrutka","moshina","mashina","transport","yandex","parkovka"] },
-  { name: "Kommunal", color: "#4FA37A", keywords: ["svet","gaz","suv","internet","telefon","kommunal","wifi","wi-fi","elektr","mobil","ijara"] },
-  { name: "Kiyim-kechak", color: "#B15FC7", keywords: ["kiyim","poyabzal","kurtka","ko'ylak","koylak","shim","futbolka","krossovka","tufli"] },
-  { name: "Sog'liq", color: "#D9455F", keywords: ["dori","shifokor","dorixona","tibbiyot","vrach","kasalxona","vitamin","stomatolog","tish"] },
-  { name: "Ta'lim", color: "#3FA0D9", keywords: ["kitob","kurs","talim","ta'lim","maktab","universitet","kontrakt","repetitor","dars"] },
-  { name: "Ko'ngilochar", color: "#D9A83F", keywords: ["kino","oyin","o'yin","konsert","sayohat","klub","bilyard","futbol"] },
+  { name: "Oziq-ovqat", color: "#D97B3F", keywords: ["ovqat","non","osh","palov","restoran","kafe","abed","obed","tushlik","nonushta","kechki","shashlik","manti","somsa","choy","qahva","kofe","market","magazin","do'kon","dokon","produkt","go'sht","gosht","myaso","meva","sabzavot","hleb","xleb","eda","ujin","zavtrak"] },
+  { name: "Transport", color: "#3F7BD9", keywords: ["taxi","taksi","yo'l","yol","benzin","metan","propan","avtobus","metro","marshrutka","moshina","mashina","transport","yandex","parkovka","doroga","proezd"] },
+  { name: "Kommunal", color: "#4FA37A", keywords: ["svet","gaz","suv","voda","internet","telefon","kommunal","wifi","wi-fi","elektr","mobil","ijara","arenda","kvartira"] },
+  { name: "Kiyim-kechak", color: "#B15FC7", keywords: ["kiyim","odejda","poyabzal","obuv","kurtka","ko'ylak","koylak","shim","futbolka","krossovka","tufli"] },
+  { name: "Sog'liq", color: "#D9455F", keywords: ["dori","lekarstv","shifokor","dorixona","apteka","tibbiyot","vrach","kasalxona","bolnitsa","vitamin","stomatolog","tish"] },
+  { name: "Ta'lim", color: "#3FA0D9", keywords: ["kitob","kniga","kurs","talim","ta'lim","maktab","shkola","universitet","kontrakt","repetitor","dars","uchyoba"] },
+  { name: "Ko'ngilochar", color: "#D9A83F", keywords: ["kino","oyin","o'yin","igra","konsert","sayohat","puteshestv","klub","bilyard","futbol"] },
 ];
 const OTHER = { name: "Boshqa", color: "#8A8578" };
 const EXPENSE_CATEGORIES = [...CATEGORY_RULES.map(r => r.name), OTHER.name];
-
 const INCOME_RULES = [
-  { name: "Maosh", color: "#2F9467", keywords: ["maosh","oylik","ish haqi","avans","zarplata","stipendiya"] },
-  { name: "Qo'shimcha ish", color: "#3A8FA8", keywords: ["buyurtma","zakaz","loyiha","freelance","frilans","sotuv","savdo","bonus"] },
-  { name: "Sovg'a", color: "#C2779B", keywords: ["sovg'a","sovga","hadya","tug'ilgan"] },
+  { name: "Maosh", color: "#2F9467", keywords: ["maosh","oylik oldim","ish haqi","avans","zarplata","zp","stipendiya","pensiya"] },
+  { name: "Qo'shimcha ish", color: "#3A8FA8", keywords: ["buyurtma","zakaz","loyiha","proekt","freelance","frilans","sotuv","savdo","prodaj","bonus","podrabotka"] },
+  { name: "Sovg'a", color: "#C2779B", keywords: ["sovg'a","sovga","hadya","podarok","tug'ilgan"] },
 ];
 const OTHER_INCOME = { name: "Boshqa kirim", color: "#6E8F7E" };
 const INCOME_CATEGORIES = [...INCOME_RULES.map(r => r.name), OTHER_INCOME.name];
 
-// Qisqa so'zlar uchun faqat o'zbekcha qo'shimchalarga ruxsat: "gaz" -> "gazga" ha, "gazeta" yo'q
-const SUFFIXES = ["ga","ka","qa","ni","da","dan","ning","lar","larga","im","imga","ing","lik","likka","xona","xonada","xonaga","chi","dagi"];
-function normalize(s) { return String(s).toLowerCase().replace(/[‘’ʻʼ`´]/g, "'"); }
-function detectCategory(desc, type = "expense") {
+// Qisqa so'zlar uchun faqat qo'shimchalarga ruxsat: "gaz" -> "gazga" ha, "gazeta" yo'q
+const SUFFIXES = ["ga","ka","qa","ni","da","dan","ning","lar","larga","im","imga","ing","lik","likka","xona","xonada","xonaga","chi","dagi","a","u","om","y","i","e"];
+function normalize(s) { return cyrToLat(String(s)).replace(/[‘’ʻʼ`´]/g, "'"); }
+function matchRules(desc, rules) {
   const text = normalize(desc);
-  const words = text.split(/[^a-z0-9'а-яёўқғҳ-]+/i).filter(Boolean);
+  const words = text.split(/[^a-z0-9'-]+/).filter(Boolean);
   const match = (w, k) => w === k || (w.startsWith(k) && (k.length >= 5 || SUFFIXES.includes(w.slice(k.length))));
-  const rules = type === "income" ? INCOME_RULES : CATEGORY_RULES;
   for (const rule of rules) {
     if (rule.keywords.some(k => k.includes(" ") ? text.includes(k) : words.some(w => match(w, k)))) return rule.name;
   }
-  return type === "income" ? OTHER_INCOME.name : OTHER.name;
+  return null;
+}
+function detectCategory(desc, type = "expense") {
+  return matchRules(desc, type === "income" ? INCOME_RULES : CATEGORY_RULES) || (type === "income" ? OTHER_INCOME.name : OTHER.name);
 }
 function colorFor(name) {
   return [...CATEGORY_RULES, ...INCOME_RULES, OTHER_INCOME].find(r => r.name === name)?.color || OTHER.color;
 }
+
+// =====================================================================
+//  OVOZ / MATNDAN SUMMANI AJRATISH: "tushlikka o'ttiz besh ming" -> 35000 + "Tushlikka"
+// =====================================================================
+const UZ_NUM = { nol:0, bir:1, ikki:2, uch:3, "to'rt":4, tort:4, besh:5, olti:6, yetti:7, sakkiz:8, "to'qqiz":9, toqqiz:9,
+  "o'n":10, on:10, yigirma:20, "o'ttiz":30, ottiz:30, qirq:40, ellik:50, oltmish:60, yetmish:70, sakson:80, "to'qson":90, toqson:90 };
+const RU_NUM = { "ноль":0,"один":1,"одна":1,"два":2,"две":2,"три":3,"четыре":4,"пять":5,"шесть":6,"семь":7,"восемь":8,"девять":9,"десять":10,
+  "одиннадцать":11,"двенадцать":12,"тринадцать":13,"четырнадцать":14,"пятнадцать":15,"шестнадцать":16,"семнадцать":17,"восемнадцать":18,"девятнадцать":19,
+  "двадцать":20,"тридцать":30,"сорок":40,"пятьдесят":50,"шестьдесят":60,"семьдесят":70,"восемьдесят":80,"девяносто":90,
+  "сто":100,"двести":200,"триста":300,"четыреста":400,"пятьсот":500,"шестьсот":600,"семьсот":700,"восемьсот":800,"девятьсот":900 };
+const NUM_SUFFIX = ["", "ga", "ta", "dan", "lik"];
+const FILLER = new Set(["so'm","som","sum","so'mga","somga","sumga","so'mlik","сум","сума","сумов","uchun","за","на","ga","ta"]);
+
+function numToken(raw) {
+  const ru = raw.toLowerCase(), w = normalize(raw);
+  if (/^\d+([.,]\d+)?$/.test(w)) return { v: parseFloat(w.replace(",", ".")) };
+  if (/^\d+k$/.test(w)) return { mul: 1000, v: parseInt(w) };
+  if (ru in RU_NUM) return { v: RU_NUM[ru] };
+  if (/^(тысяч[аи]?|тыс)$/.test(ru)) return { mul: 1000 };
+  if (/^(миллион(а|ов)?|млн)$/.test(ru)) return { mul: 1e6 };
+  if (ru === "полтора" || ru === "полторы") return { v: 1.5 };
+  for (const suf of NUM_SUFFIX) {
+    if (suf && !w.endsWith(suf)) continue;
+    const root = suf ? w.slice(0, -suf.length) : w;
+    if (root in UZ_NUM) return { v: UZ_NUM[root] };
+    if (root === "yuz") return { mul: 100 };
+    if (root === "ming") return { mul: 1000 };
+    if (root === "million" || root === "mln" || root === "milyon") return { mul: 1e6 };
+    if (root === "yarim") return { half: true };
+  }
+  return null;
+}
+function parseSpoken(text) {
+  // "35 000" / "35.000" kabi guruhlarni birlashtirish
+  const clean = String(text).replace(/(\d)[\s .,](?=\d{3}(\D|$))/g, "$1");
+  const tokens = clean.split(/\s+/).filter(Boolean);
+  let total = 0, cur = 0, found = false, start = -1, end = -1;
+  for (let i = 0; i < tokens.length; i++) {
+    const tk = numToken(tokens[i].replace(/[.,!?]+$/, ""));
+    if (!tk) { if (found) break; continue; }   // birinchi son guruhi tugadi
+    if (start < 0) start = i;
+    end = i; found = true;
+    if (tk.half) cur += 0.5;                                   // "bir yarim"
+    else if (tk.mul === 100) cur = (cur || 1) * 100;           // "ikki yuz"
+    else if (tk.mul) { total += (tk.v ?? (cur || 1)) * tk.mul; cur = 0; }  // "35 ming", "1,5 mln"
+    else cur += tk.v;                                          // "o'ttiz besh" -> 30 + 5
+  }
+  const amount = Math.round(total + cur);
+  const rest = found ? tokens.filter((_, i) => i < start || i > end) : tokens;
+  let desc = rest.filter(w => !FILLER.has(normalize(w)) && !FILLER.has(w.toLowerCase())).join(" ").replace(/[.,!?]+$/, "").trim();
+  if (desc) desc = desc[0].toUpperCase() + desc.slice(1);
+  return { amount: found ? amount : 0, desc };
+}
+
+// =====================================================================
+//  YORDAMCHI FUNKSIYALAR
+// =====================================================================
 function fmt(n) { return new Intl.NumberFormat("ru-RU").format(Math.round(n)).replace(/ /g, " "); }
 function fmtShort(n) {
-  if (n >= 1e6) return (Math.round(n / 1e5) / 10).toString().replace(".", ",") + " mln";
-  if (n >= 1e3) return Math.round(n / 1e3) + " ming";
+  if (n >= 1e6) return (Math.round(n / 1e5) / 10).toString().replace(".", ",") + " " + t("mln");
+  if (n >= 1e3) return Math.round(n / 1e3) + " " + t("thousand");
   return String(n);
 }
 const isIncome = e => e.type === "income";
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
-// ---------- Sana (MAHALLIY vaqt bo'yicha) ----------
 function toISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
 function todayISO() { return toISO(new Date()); }
 function startOfWeekISO(d = new Date()) { const x = new Date(d); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return toISO(x); }
 function startOfMonthISO(d = new Date()) { return toISO(new Date(d.getFullYear(), d.getMonth(), 1)); }
 function addDaysISO(iso, n) { const [y, m, d] = iso.split("-").map(Number); return toISO(new Date(y, m - 1, d + n)); }
 
-// ---------- Saqlash ----------
+// =====================================================================
+//  SAQLASH
+// =====================================================================
 const STORAGE_KEY = "harajat_kundaligi_v1"; // eski kalit — mavjud yozuvlar yo'qolmaydi
 const SETTINGS_KEY = "xarajat_settings_v1";
 function loadJSON(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch { return fallback; } }
-function saveJSON(key, v) {
-  try { localStorage.setItem(key, JSON.stringify(v)); }
-  catch { showToast("Saqlab bo'lmadi — xotira to'lgan bo'lishi mumkin", null, null, "danger"); }
-}
+function saveJSON(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch { showToast(t("tStorage"), null, null, "danger"); } }
 let expenses = loadJSON(STORAGE_KEY, []);
 if (!Array.isArray(expenses)) expenses = [];
-let settings = Object.assign({ theme: "auto", budget: { total: 0, cats: {} } }, loadJSON(SETTINGS_KEY, {}));
+let settings = Object.assign({ theme: "auto", lang: "lat", budget: { total: 0, cats: {} } }, loadJSON(SETTINGS_KEY, {}));
+lang = ["lat", "cyr", "ru"].includes(settings.lang) ? settings.lang : "lat";
 const saveExpenses = () => saveJSON(STORAGE_KEY, expenses);
 const saveSettings = () => saveJSON(SETTINGS_KEY, settings);
 
-let currentView = "kunlik";
-let currentType = "expense";
-let editingId = null;
-let categoryFilter = null;
-let searchQuery = "";
+let currentView = "kunlik", currentType = "expense", editingId = null, categoryFilter = null, searchQuery = "";
 
 const $ = id => document.getElementById(id);
 const amountInput = $("amountInput"), descInput = $("descInput"), dateInput = $("dateInput");
 const categorySelect = $("categorySelect"), errorMsg = $("errorMsg"), formCard = $("formCard");
 dateInput.value = todayISO();
 
-// ---------- Xarajat / Daromad almashtirish ----------
+// =====================================================================
+//  FORMA
+// =====================================================================
 function fillCategorySelect() {
+  const keep = categorySelect.value;
   const list = currentType === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-  categorySelect.innerHTML = `<option value="">Avtomatik kategoriya</option>` + list.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+  categorySelect.innerHTML = `<option value="">${escapeHtml(t("autoCat"))}</option>` + list.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(catLabel(c))}</option>`).join("");
+  if (list.includes(keep)) categorySelect.value = keep;
+}
+function updateAddBtn() {
+  $("addBtn").textContent = editingId !== null ? t("saveEdit") : currentType === "income" ? t("addIncome") : t("add");
+  $("addBtn").classList.toggle("income", currentType === "income");
 }
 function setType(type) {
   currentType = type;
   document.querySelectorAll("#typeToggle button").forEach(b => b.classList.toggle("active", b.dataset.type === type));
-  descInput.placeholder = type === "income" ? "Qayerdan keldi? (mas: maosh, buyurtma, sovg'a)" : "Nimaga sarfladingiz? (mas: tushlik, taksi, svet)";
-  $("addBtn").classList.toggle("income", type === "income");
-  if (editingId === null) $("addBtn").textContent = type === "income" ? "+ Kirim" : "+ Qo'shish";
+  descInput.placeholder = t(type === "income" ? "descPhInc" : "descPhExp");
+  updateAddBtn();
   fillCategorySelect();
   renderQuick();
 }
-$("typeToggle").addEventListener("click", e => {
-  const b = e.target.closest("button");
-  if (b) setType(b.dataset.type);
-});
+$("typeToggle").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setType(b.dataset.type); });
 
-// ---------- Summa formatlash ----------
 function parseAmount(s) { return parseInt(String(s).replace(/\D/g, ""), 10) || 0; }
-amountInput.addEventListener("input", () => {
-  const n = parseAmount(amountInput.value);
-  amountInput.value = n ? fmt(n) : "";
-});
+amountInput.addEventListener("input", () => { const n = parseAmount(amountInput.value); amountInput.value = n ? fmt(n) : ""; });
 
-// ---------- Qo'shish / Saqlash ----------
 function addEntry(entry, { silent = false } = {}) {
   expenses.unshift(entry);
   saveExpenses();
   if (!silent) checkBudget(entry);
 }
 function submit() {
-  const val = parseAmount(amountInput.value);
-  const desc = descInput.value.trim();
-  if (!val) { errorMsg.textContent = "Summani to'g'ri kiriting"; amountInput.focus(); return; }
-  if (!desc) { errorMsg.textContent = currentType === "income" ? "Qayerdan kelganini yozing" : "Nima uchun sarflaganingizni yozing"; descInput.focus(); return; }
+  let val = parseAmount(amountInput.value);
+  let desc = descInput.value.trim();
+  // Summa bo'sh, lekin tavsifda son bor: "tushlik 35000" yoki "taksi o'n besh ming"
+  if (!val && desc) {
+    const p = parseSpoken(desc);
+    if (p.amount && p.desc) { val = p.amount; desc = p.desc; }
+  }
+  if (!val) { errorMsg.textContent = t("errAmount"); amountInput.focus(); return; }
+  if (!desc) { errorMsg.textContent = t(currentType === "income" ? "errDescInc" : "errDesc"); descInput.focus(); return; }
 
   const category = categorySelect.value || detectCategory(desc, currentType);
   const date = dateInput.value || todayISO();
-
   if (editingId !== null) {
     const e = expenses.find(x => x.id === editingId);
     if (e) Object.assign(e, { amount: val, desc, category, date, type: currentType });
     saveExpenses();
-    showToast("Yozuv yangilandi");
+    showToast(t("tUpdated"));
   } else {
-    const entry = { id: Date.now(), amount: val, desc, category, date, type: currentType };
-    addEntry(entry);
+    addEntry({ id: Date.now(), amount: val, desc, category, date, type: currentType });
+    if (currentType === "income") currentType = "expense";  // keyingi yozuv odatda xarajat bo'ladi
   }
   resetForm();
   render();
 }
 function resetForm() {
   editingId = null;
-  amountInput.value = ""; descInput.value = ""; categorySelect.value = ""; errorMsg.textContent = "";
+  amountInput.value = ""; descInput.value = ""; categorySelect.value = ""; errorMsg.textContent = ""; $("micStatus").textContent = "";
   dateInput.value = todayISO();
   formCard.classList.remove("editing");
   setType(currentType);
 }
 $("addBtn").addEventListener("click", submit);
 $("cancelBtn").addEventListener("click", resetForm);
-[amountInput, descInput].forEach(el => el.addEventListener("keydown", e => {
-  if (e.key === "Enter") { e.preventDefault(); submit(); }
-}));
+[amountInput, descInput].forEach(el => el.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); submit(); } }));
 
-// ---------- Tezkor tugmalar ----------
-const DEFAULT_QUICK = {
-  expense: ["Tushlik", "Taksi", "Non", "Svet", "Telefon"],
-  income: ["Maosh", "Buyurtma"],
-};
+// =====================================================================
+//  OVOZ BILAN KIRITISH (Web Speech API)
+// =====================================================================
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog = null, listening = false, triedFallback = false;
+function startListening(langCode) {
+  recog = new SR();
+  recog.lang = langCode;
+  recog.interimResults = true;
+  recog.maxAlternatives = 1;
+  let finalText = "";
+  recog.onstart = () => { listening = true; $("micBtn").classList.add("listening"); $("micStatus").textContent = t("micListening"); errorMsg.textContent = ""; };
+  recog.onresult = ev => {
+    let interim = "";
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) finalText += ev.results[i][0].transcript; else interim += ev.results[i][0].transcript;
+    }
+    $("micStatus").textContent = "🎙️ " + (finalText + interim);
+  };
+  recog.onerror = ev => {
+    if (ev.error === "language-not-supported" && !triedFallback) { triedFallback = true; recog.onend = null; listening = false; return startListening("ru-RU"); }
+    $("micStatus").textContent = "";
+    errorMsg.textContent = ev.error === "not-allowed" || ev.error === "service-not-allowed" ? t("micDenied") : ev.error === "no-speech" ? t("micNoSpeech") : t("micError");
+  };
+  recog.onend = () => {
+    listening = false; $("micBtn").classList.remove("listening");
+    if (!finalText.trim()) { if ($("micStatus").textContent === t("micListening")) $("micStatus").textContent = ""; return; }
+    applySpoken(finalText.trim());
+  };
+  try { recog.start(); } catch { errorMsg.textContent = t("micError"); }
+}
+function applySpoken(text) {
+  const p = parseSpoken(text);
+  // "maosh", "zakaz" aytilsa — daromad; "tushlik", "taksi" aytilsa — xarajat (tur o'zi almashadi)
+  if (p.desc && matchRules(p.desc, INCOME_RULES)) { if (currentType !== "income") setType("income"); }
+  else if (p.desc && currentType === "income" && matchRules(p.desc, CATEGORY_RULES)) setType("expense");
+  if (p.amount) amountInput.value = fmt(p.amount);
+  if (p.desc) descInput.value = p.desc;
+  $("micStatus").textContent = t(p.amount ? "micHeard" : "micNoAmount", { t: text });
+  (p.amount ? $("addBtn") : amountInput).focus();
+}
+if (SR) {
+  $("micBtn").hidden = false;
+  $("micBtn").addEventListener("click", () => {
+    if (listening) { recog && recog.stop(); return; }
+    triedFallback = false;
+    startListening(lang === "ru" ? "ru-RU" : "uz-UZ");
+  });
+}
+
+// =====================================================================
+//  TEZKOR TUGMALAR
+// =====================================================================
+const DEFAULT_QUICK = { expense: ["Tushlik", "Taksi", "Non", "Svet", "Telefon"], income: ["Maosh", "Buyurtma"] };
 function getQuickItems() {
-  // So'nggi 60 kundagi eng ko'p takrorlangan yozuvlar (tavsif bo'yicha), oxirgi summasi bilan
   const from = addDaysISO(todayISO(), -60);
   const groups = new Map();
-  expenses
-    .filter(e => (e.type || "expense") === currentType && e.date >= from)
+  expenses.filter(e => (e.type || "expense") === currentType && e.date >= from)
     .slice().sort((a, b) => a.id - b.id)
     .forEach(e => {
       const key = normalize(e.desc.trim());
@@ -413,20 +648,15 @@ function getQuickItems() {
   const learned = [...groups.values()].filter(g => g.count >= 2).sort((a, b) => b.count - a.count).slice(0, 6);
   if (learned.length >= 3) return learned;
   const have = new Set(learned.map(g => normalize(g.desc)));
-  const defaults = DEFAULT_QUICK[currentType].filter(d => !have.has(normalize(d))).map(d => ({ desc: d }));
+  const defaults = DEFAULT_QUICK[currentType].map(k => t("q_" + k)).filter(d => !have.has(normalize(d))).map(d => ({ desc: d }));
   return [...learned, ...defaults].slice(0, 6);
 }
 function renderQuick() {
   const items = getQuickItems();
   $("quickList").innerHTML = items.map((q, i) => `
-    <button class="quick-chip" data-i="${i}">
-      ${escapeHtml(q.desc)}
-      <small>${q.amount ? fmt(q.amount) + " so'm" : "summa kiritish"}</small>
-    </button>`).join("");
+    <button class="quick-chip" data-i="${i}">${escapeHtml(q.desc)}<small>${q.amount ? fmt(q.amount) + " " + t("sum") : t("quickNeedAmount")}</small></button>`).join("");
   $("quickList")._items = items;
-  $("quickHint").textContent = items.some(q => q.amount)
-    ? "Bir bosishda qo'shiladi · ko'p yozganlaringiz bu yerda paydo bo'ladi"
-    : "Tez yozish uchun bosing · ko'p yozganlaringiz bu yerda paydo bo'ladi";
+  $("quickHint").textContent = t(items.some(q => q.amount) ? "quickHintAmt" : "quickHintNo");
 }
 $("quickList").addEventListener("click", e => {
   const chip = e.target.closest(".quick-chip");
@@ -437,32 +667,28 @@ $("quickList").addEventListener("click", e => {
     const entry = { id: Date.now(), amount: q.amount, desc: q.desc, category: q.category || detectCategory(q.desc, currentType), date: dateInput.value || todayISO(), type: currentType };
     addEntry(entry, { silent: true });
     render();
-    const warned = checkBudget(entry);
-    if (!warned) showToast(`Qo'shildi: ${q.desc} — ${fmt(q.amount)}`, "Qaytarish", () => removeExpense(entry.id, true));
+    if (!checkBudget(entry)) showToast(t("tAdded", { d: q.desc, a: fmt(q.amount) }), t("undo"), () => removeExpense(entry.id, true));
   } else {
     descInput.value = q.desc;
     amountInput.focus();
   }
 });
 
-// ---------- Tahrirlash ----------
+// =====================================================================
+//  TAHRIRLASH / O'CHIRISH
+// =====================================================================
 function startEdit(id) {
   const e = expenses.find(x => x.id === id);
   if (!e) return;
   editingId = id;
   setType(e.type || "expense");
-  amountInput.value = fmt(e.amount);
-  descInput.value = e.desc;
-  dateInput.value = e.date;
-  categorySelect.value = e.category;
+  amountInput.value = fmt(e.amount); descInput.value = e.desc; dateInput.value = e.date; categorySelect.value = e.category;
   formCard.classList.add("editing");
-  $("addBtn").textContent = "✓ Saqlash";
+  updateAddBtn();
   errorMsg.textContent = "";
   window.scrollTo({ top: 0, behavior: "smooth" });
   amountInput.focus();
 }
-
-// ---------- O'chirish (qaytarish bilan) ----------
 let lastDeleted = null;
 function removeExpense(id, quiet = false) {
   const idx = expenses.findIndex(e => e.id === id);
@@ -472,8 +698,8 @@ function removeExpense(id, quiet = false) {
   if (editingId === id) resetForm();
   saveExpenses();
   render();
-  if (quiet) { showToast("Bekor qilindi"); return; }
-  showToast("Yozuv o'chirildi", "Qaytarish", () => {
+  if (quiet) { showToast(t("tCancelled")); return; }
+  showToast(t("tDeleted"), t("undo"), () => {
     if (!lastDeleted) return;
     expenses.splice(lastDeleted.idx, 0, lastDeleted.item);
     lastDeleted = null;
@@ -481,11 +707,8 @@ function removeExpense(id, quiet = false) {
     render();
   });
 }
-
-// ---------- Ro'yxat va filtrlar ----------
 $("entryList").addEventListener("click", e => {
-  const del = e.target.closest(".del-btn");
-  const row = e.target.closest(".entry");
+  const del = e.target.closest(".del-btn"), row = e.target.closest(".entry");
   if (del) { e.stopPropagation(); removeExpense(Number(del.dataset.id)); return; }
   if (row) startEdit(Number(row.dataset.id));
 });
@@ -497,15 +720,16 @@ $("categoryList").addEventListener("click", e => {
 });
 $("filterChip").addEventListener("click", () => { categoryFilter = null; render(); });
 $("searchInput").addEventListener("input", e => { searchQuery = normalize(e.target.value.trim()); render(); });
-document.querySelectorAll(".tab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentView = btn.dataset.view;
-    render();
-  });
-});
+document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentView = btn.dataset.view;
+  render();
+}));
 
+// =====================================================================
+//  DAVRLAR VA BYUDJET
+// =====================================================================
 function inRange(from, to, list = expenses) { return list.filter(e => e.date >= from && e.date <= to); }
 function getPeriod() {
   const today = todayISO();
@@ -516,38 +740,31 @@ function getPeriod() {
 }
 const sumOf = list => list.reduce((s, e) => s + e.amount, 0);
 function getPreviousExpenseTotal() {
-  const today = todayISO();
-  const exp = expenses.filter(e => !isIncome(e));
+  const today = todayISO(), exp = expenses.filter(e => !isIncome(e));
   if (currentView === "kunlik") { const y = addDaysISO(today, -1); return sumOf(inRange(y, y, exp)); }
   if (currentView === "haftalik") { const s = startOfWeekISO(); return sumOf(inRange(addDaysISO(s, -7), addDaysISO(today, -7), exp)); }
   if (currentView === "oylik") {
-    const now = new Date();
-    const lastDayPrev = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    const now = new Date(), lastDayPrev = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
     return sumOf(inRange(toISO(new Date(now.getFullYear(), now.getMonth() - 1, 1)), toISO(new Date(now.getFullYear(), now.getMonth() - 1, Math.min(now.getDate(), lastDayPrev))), exp));
   }
   return null;
 }
-
-// ---------- Byudjet ----------
 function monthExpenses() { return inRange(startOfMonthISO(), "9999-12-31").filter(e => !isIncome(e)); }
 function budgetLevel(spent, limit) { if (!limit) return ""; const p = spent / limit; return p >= 1 ? "over" : p >= 0.8 ? "warn" : ""; }
-
-// Yozuv qo'shilganda limitdan o'tib ketishni tekshirish; ogohlantirish chiqsa true qaytaradi
 function checkBudget(entry) {
   if (isIncome(entry) || entry.date < startOfMonthISO()) return false;
-  const b = settings.budget, month = monthExpenses();
-  const checks = [];
+  const b = settings.budget, month = monthExpenses(), checks = [];
   const catLimit = b.cats?.[entry.category];
-  if (catLimit) checks.push({ name: entry.category, spent: sumOf(month.filter(e => e.category === entry.category)), limit: catLimit });
-  if (b.total) checks.push({ name: "Oylik byudjet", spent: sumOf(month), limit: b.total });
+  if (catLimit) checks.push({ name: catLabel(entry.category), spent: sumOf(month.filter(e => e.category === entry.category)), limit: catLimit });
+  if (b.total) checks.push({ name: t("budgetMenu").replace(/^🎯\s*/, ""), spent: sumOf(month), limit: b.total });
   for (const c of checks) {
     const before = c.spent - entry.amount;
     if (c.spent >= c.limit && before < c.limit) {
-      showToast(`⚠️ ${c.name}: limitdan ${fmt(c.spent - c.limit)} so'm oshdi`, "Qaytarish", () => removeExpense(entry.id, true), "danger");
+      showToast(t("tBudgetOver", { n: c.name, x: fmt(c.spent - c.limit) }), t("undo"), () => removeExpense(entry.id, true), "danger");
       return true;
     }
     if (c.spent >= c.limit * 0.8 && before < c.limit * 0.8) {
-      showToast(`${c.name}: limitning ${Math.round(c.spent / c.limit * 100)}% ishlatildi`, "Qaytarish", () => removeExpense(entry.id, true), "warn");
+      showToast(t("tBudgetWarn", { n: c.name, p: Math.round(c.spent / c.limit * 100) }), t("undo"), () => removeExpense(entry.id, true), "warn");
       return true;
     }
   }
@@ -556,33 +773,25 @@ function checkBudget(entry) {
 function renderBudgetCard() {
   const card = $("budgetCard"), total = settings.budget.total;
   if (!total) { card.style.display = "none"; return; }
-  const spent = sumOf(monthExpenses());
-  const pct = Math.min(100, spent / total * 100);
-  const left = total - spent;
-  const now = new Date();
-  const daysLeft = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate() + 1;
+  const spent = sumOf(monthExpenses()), pct = Math.min(100, spent / total * 100), left = total - spent;
+  const now = new Date(), daysLeft = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate() + 1;
   card.style.display = "block";
   card.innerHTML = `
-    <div class="budget-head"><span>🎯 Bu oylik byudjet</span><span><b>${fmt(spent)}</b> / ${fmt(total)}</span></div>
+    <div class="budget-head"><span>${t("budgetCardTitle")}</span><span><b>${fmt(spent)}</b> / ${fmt(total)}</span></div>
     <div class="budget-track"><span class="budget-fill ${budgetLevel(spent, total)}" style="width:${pct.toFixed(1)}%"></span></div>
-    <div class="budget-note">${left >= 0
-      ? `Qoldi: <b>${fmt(left)} so'm</b> · kuniga taxminan ${fmt(left / daysLeft)} so'm (${daysLeft} kun)`
-      : `<b style="color:var(--danger)">Limitdan ${fmt(-left)} so'm oshib ketdi</b>`}</div>`;
+    <div class="budget-note">${left >= 0 ? t("budgetLeft", { x: fmt(left), y: fmt(left / daysLeft), d: daysLeft })
+      : `<b style="color:var(--danger)">${t("budgetOverText", { x: fmt(-left) })}</b>`}</div>`;
 }
 $("budgetCard").addEventListener("click", openBudgetPanel);
-
 function openBudgetPanel() {
   const b = settings.budget;
   const row = (label, key, value, color) => `
     <div class="budget-row ${key === "__total" ? "total" : ""}">
       <label>${color ? `<span class="cat-dot" style="background:${color}"></span>` : ""}${escapeHtml(label)}</label>
-      <input type="text" inputmode="numeric" data-key="${escapeHtml(key)}" placeholder="limit yo'q" value="${value ? fmt(value) : ""}" />
+      <input type="text" inputmode="numeric" data-key="${escapeHtml(key)}" placeholder="${escapeHtml(t("noLimit"))}" value="${value ? fmt(value) : ""}" />
     </div>`;
-  $("budgetInputs").innerHTML = row("Umumiy oylik limit", "__total", b.total)
-    + EXPENSE_CATEGORIES.map(c => row(c, c, b.cats?.[c], colorFor(c))).join("");
-  $("budgetInputs").querySelectorAll("input").forEach(inp => inp.addEventListener("input", () => {
-    const n = parseAmount(inp.value); inp.value = n ? fmt(n) : "";
-  }));
+  $("budgetInputs").innerHTML = row(t("budgetTotal"), "__total", b.total) + EXPENSE_CATEGORIES.map(c => row(catLabel(c), c, b.cats?.[c], colorFor(c))).join("");
+  $("budgetInputs").querySelectorAll("input").forEach(inp => inp.addEventListener("input", () => { const n = parseAmount(inp.value); inp.value = n ? fmt(n) : ""; }));
   $("menu").classList.remove("open");
   $("budgetPanel").classList.add("open");
   $("budgetPanel").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -593,50 +802,41 @@ $("budgetSave").addEventListener("click", () => {
   const budget = { total: 0, cats: {} };
   $("budgetInputs").querySelectorAll("input").forEach(inp => {
     const n = parseAmount(inp.value);
-    if (inp.dataset.key === "__total") budget.total = n;
-    else if (n) budget.cats[inp.dataset.key] = n;
+    if (inp.dataset.key === "__total") budget.total = n; else if (n) budget.cats[inp.dataset.key] = n;
   });
   settings.budget = budget;
   saveSettings();
   $("budgetPanel").classList.remove("open");
   render();
-  showToast("Byudjet saqlandi");
+  showToast(t("tBudgetSaved"));
 });
 
-// ---------- Render ----------
-const periodLabels = { kunlik: "Bugun sarflangan summa", haftalik: "Shu hafta sarflangan summa", oylik: "Shu oy sarflangan summa", hammasi: "Boshidan beri sarflangan summa" };
-const compareNames = { kunlik: "kechaga", haftalik: "o'tgan haftaga", oylik: "o'tgan oyga" };
-
+// =====================================================================
+//  RENDER
+// =====================================================================
 function render() {
-  const period = getPeriod();
-  const exp = period.filter(e => !isIncome(e));
-  const inc = period.filter(isIncome);
+  const period = getPeriod(), exp = period.filter(e => !isIncome(e)), inc = period.filter(isIncome);
   const total = sumOf(exp), incomeTotal = sumOf(inc);
 
-  $("totalDisplay").innerHTML = `${fmt(total)} <span>so'm</span>`;
-  $("periodLabel").textContent = periodLabels[currentView];
+  $("totalDisplay").innerHTML = `${fmt(total)} <span>${t("sum")}</span>`;
+  $("periodLabel").textContent = t("period_" + currentView);
 
-  const prev = getPreviousExpenseTotal();
-  const cmp = $("compareLabel");
+  const prev = getPreviousExpenseTotal(), cmp = $("compareLabel"), p = t("cmp_" + currentView);
   if (prev === null || (prev === 0 && total === 0)) cmp.textContent = "";
-  else if (prev === 0) cmp.textContent = `${compareNames[currentView]} nisbatan: avval xarajat yo'q edi`;
+  else if (prev === 0) cmp.textContent = t("cmpNoPrev", { p });
   else {
     const diff = Math.round((total - prev) / prev * 100);
-    cmp.textContent = diff === 0 ? `${compareNames[currentView]} nisbatan o'zgarishsiz`
-      : `${compareNames[currentView]} nisbatan ${diff > 0 ? "▲" : "▼"} ${Math.abs(diff)}% ${diff > 0 ? "ko'p" : "kam"}`;
+    cmp.textContent = diff === 0 ? t("cmpSame", { p }) : t(diff > 0 ? "cmpMore" : "cmpLess", { p, n: Math.abs(diff) });
   }
 
-  // Daromad va qoldiq (faqat daromad yozilgan bo'lsa ko'rinadi)
-  const hasAnyIncome = expenses.some(isIncome);
   const balance = incomeTotal - total;
-  $("balanceRow").innerHTML = hasAnyIncome ? `
-    <span>Kirim: <b class="inc">+${fmt(incomeTotal)}</b></span>
-    <span>Qoldiq: <b style="color:${balance >= 0 ? "#7FD6AC" : "#FF9AA8"}">${balance >= 0 ? "" : "−"}${fmt(Math.abs(balance))}</b></span>` : "";
+  $("balanceRow").innerHTML = expenses.some(isIncome) ? `
+    <span>${t("income")}: <b class="inc">+${fmt(incomeTotal)}</b></span>
+    <span>${t("balance")}: <b style="color:${balance >= 0 ? "#7FD6AC" : "#FF9AA8"}">${balance >= 0 ? "" : "−"}${fmt(Math.abs(balance))}</b></span>` : "";
 
   renderBudgetCard();
   renderQuick();
 
-  // Kategoriyalar (faqat xarajatlar)
   const map = {};
   exp.forEach(e => { map[e.category] = (map[e.category] || 0) + e.amount; });
   const byCategory = Object.entries(map).map(([name, value]) => ({ name, value, color: colorFor(name) })).sort((a, b) => b.value - a.value);
@@ -654,86 +854,79 @@ function render() {
       return `
       <div class="cat-bar-row ${categoryFilter === c.name ? "selected" : ""}" data-cat="${escapeHtml(c.name)}">
         <span class="cat-dot" style="background:${c.color}"></span>
-        <span class="cat-name">${escapeHtml(c.name)}</span>
+        <span class="cat-name">${escapeHtml(catLabel(c.name))}</span>
         <span class="cat-bar-track"><span class="cat-bar-fill" style="width:${width.toFixed(0)}%; background:${fillColor}"></span></span>
-        <span class="cat-value">${fmt(c.value)} (${Math.round(c.value / total * 100)}%)${limit ? `<span class="cat-limit ${lvl === "over" ? "over" : ""}">limit ${fmtShort(limit)}</span>` : ""}</span>
+        <span class="cat-value">${fmt(c.value)} (${Math.round(c.value / total * 100)}%)${limit ? `<span class="cat-limit ${lvl === "over" ? "over" : ""}">${t("limitShort", { x: fmtShort(limit) })}</span>` : ""}</span>
       </div>`;
     }).join("");
   }
 
-  // Yozuvlar
   let list = period;
   if (categoryFilter) list = list.filter(e => e.category === categoryFilter);
-  if (searchQuery) list = list.filter(e => normalize(e.desc).includes(searchQuery) || normalize(e.category).includes(searchQuery));
+  if (searchQuery) list = list.filter(e => normalize(e.desc).includes(searchQuery) || normalize(e.category).includes(searchQuery) || normalize(catLabel(e.category)).includes(searchQuery));
   $("entryCount").textContent = list.length;
-  $("filterChip").innerHTML = categoryFilter ? `<button class="filter-chip">${escapeHtml(categoryFilter)} ✕</button>` : "";
+  $("filterChip").innerHTML = categoryFilter ? `<button class="filter-chip">${escapeHtml(catLabel(categoryFilter))} ✕</button>` : "";
 
-  const entryList = $("entryList");
-  if (list.length === 0) {
-    entryList.innerHTML = `<div class="empty">${period.length ? "Mos yozuv topilmadi." : "Hozircha yozuv yo'q. Yuqoridan qo'shing."}</div>`;
-  } else {
-    entryList.innerHTML = list.slice()
-      .sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id)
-      .map(e => `
+  $("entryList").innerHTML = list.length === 0
+    ? `<div class="empty">${t(period.length ? "emptyNoMatch" : "emptyNone")}</div>`
+    : list.slice().sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id).map(e => `
       <div class="entry" data-id="${e.id}">
         <div class="entry-left">
           <span class="entry-dot" style="background:${colorFor(e.category)}"></span>
           <div>
             <div class="entry-desc">${escapeHtml(e.desc)}</div>
-            <div class="entry-meta">${escapeHtml(e.category)} · ${e.date}</div>
+            <div class="entry-meta">${escapeHtml(catLabel(e.category))} · ${e.date}</div>
           </div>
         </div>
         <div class="entry-right">
           <span class="entry-amount ${isIncome(e) ? "income" : ""}">${isIncome(e) ? "+" : ""}${fmt(e.amount)}</span>
-          <button class="del-btn" data-id="${e.id}" aria-label="O'chirish">✕</button>
+          <button class="del-btn" data-id="${e.id}" aria-label="✕">✕</button>
         </div>
       </div>`).join("");
-  }
-}
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-// ---------- Toast ----------
+// =====================================================================
+//  TOAST, MAVZU, TIL, MENYU
+// =====================================================================
 let toastTimer;
 function showToast(text, actionText, action, kind) {
-  const t = $("toast"), btn = $("toastAction");
+  const el = $("toast"), btn = $("toastAction");
   $("toastText").textContent = text;
   btn.textContent = actionText || "";
   btn.style.display = actionText ? "block" : "none";
-  btn.onclick = () => { action && action(); t.classList.remove("show"); };
-  t.classList.remove("warn", "danger");
-  if (kind) t.classList.add(kind);
-  t.classList.add("show");
+  btn.onclick = () => { action && action(); el.classList.remove("show"); };
+  el.classList.remove("warn", "danger");
+  if (kind) el.classList.add(kind);
+  el.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), kind ? 7000 : 5000);
+  toastTimer = setTimeout(() => el.classList.remove("show"), kind ? 7000 : 5000);
 }
-
-// ---------- Mavzu ----------
 function applyTheme() {
-  const t = settings.theme;
-  if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
-  else delete document.documentElement.dataset.theme;
-  document.querySelectorAll("#themeSeg button").forEach(b => b.classList.toggle("active", b.dataset.theme === (t || "auto")));
-  const dark = t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+  const th = settings.theme;
+  if (th === "dark" || th === "light") document.documentElement.dataset.theme = th; else delete document.documentElement.dataset.theme;
+  document.querySelectorAll("#themeSeg button").forEach(b => b.classList.toggle("active", b.dataset.theme === (th || "auto")));
+  const dark = th === "dark" || (th !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
   document.querySelector('meta[name="theme-color"]').content = dark ? "#0E0D0B" : "#2A2620";
 }
-$("themeSeg").addEventListener("click", e => {
+$("themeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; settings.theme = b.dataset.theme; saveSettings(); applyTheme(); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", applyTheme);
+$("langSeg").addEventListener("click", e => {
   const b = e.target.closest("button");
   if (!b) return;
-  settings.theme = b.dataset.theme;
+  lang = settings.lang = b.dataset.lang;
   saveSettings();
-  applyTheme();
+  applyI18n();
+  setType(currentType);
+  if (editingId !== null) updateAddBtn();
+  if ($("budgetPanel").classList.contains("open")) openBudgetPanel();
+  render();
 });
-matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", applyTheme);
-
-// ---------- Menyu, eksport, import ----------
 $("menuBtn").addEventListener("click", () => { $("menu").classList.toggle("open"); $("budgetPanel").classList.remove("open"); });
+
 function download(filename, content, type) {
   const blob = new Blob([content], { type });
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
+  a.href = URL.createObjectURL(blob); a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -743,9 +936,9 @@ $("exportJsonBtn").addEventListener("click", () => {
 });
 $("exportCsvBtn").addEventListener("click", () => {
   const esc = v => `"${String(v).replace(/"/g, '""')}"`;
-  const rows = [["Sana", "Turi", "Tavsif", "Kategoriya", "Summa"].map(esc).join(";")]
-    .concat(expenses.slice().sort((a, b) => a.date.localeCompare(b.date))
-      .map(e => [e.date, isIncome(e) ? "Daromad" : "Xarajat", e.desc, e.category, isIncome(e) ? e.amount : -e.amount].map(esc).join(";")));
+  const rows = [t("csvHead").split(";").map(esc).join(";")].concat(
+    expenses.slice().sort((a, b) => a.date.localeCompare(b.date))
+      .map(e => [e.date, t(isIncome(e) ? "csvInc" : "csvExp"), e.desc, catLabel(e.category), isIncome(e) ? e.amount : -e.amount].map(esc).join(";")));
   download(`xarajatlar-${todayISO()}.csv`, "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
   $("menu").classList.remove("open");
 });
@@ -768,32 +961,29 @@ $("importFile").addEventListener("change", async e => {
       });
     saveExpenses();
     render();
-    showToast(`${added} ta yozuv tiklandi`);
+    showToast(t("tRestored", { n: added }));
   } catch {
-    showToast("Fayl noto'g'ri formatda", null, null, "danger");
+    showToast(t("tBadFile"), null, null, "danger");
   }
   $("menu").classList.remove("open");
 });
 
-// ---------- Ishga tushirish ----------
+// =====================================================================
+//  ISHGA TUSHIRISH
+// =====================================================================
 applyTheme();
+applyI18n();
 setType("expense");
 render();
 
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) { if (editingId === null && !amountInput.value) dateInput.value = todayISO(); render(); }
 });
-
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => { navigator.serviceWorker.register("service-worker.js").catch(() => {}); });
 }
-
 let deferredPrompt;
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  $("installBanner").style.display = "block";
-});
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredPrompt = e; $("installBanner").style.display = "block"; });
 $("installBtn").addEventListener("click", async () => {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
