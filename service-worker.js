@@ -1,5 +1,5 @@
 // Har bir yangi relizda versiyani oshiring (v3, v4...) — eski kesh avtomatik o'chadi
-const CACHE_NAME = "xarajat-kundaligi-v6";
+const CACHE_NAME = "xarajat-kundaligi-v7";
 // Eslatma holati (sahifa yozadi, SW o'qiydi) — eski keshlar bilan birga o'chirilmaydi
 const REM_CACHE = "xarajat-reminder", REM_URL = "./__reminder-state", REM_TAG = "xarajat-reminder";
 const FILES_TO_CACHE = [

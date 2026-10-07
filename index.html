@@ -179,7 +179,24 @@
   .switch:checked { background: var(--income); }
   .switch:checked::after { transform: translateX(18px); }
   .rem-note { font-size: 12px; color: var(--faint); margin-top: 6px; line-height: 1.45; }
-  .wide-btn { width: 100%; margin-top: 10px; }
+  .wide-btn { width: 100%; margin-top: 10px; justify-content: center; }
+
+  /* Doimiy to'lovlar */
+  .rec-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .rec-info { flex: 1; min-width: 0; }
+  .rec-info b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rec-info small { font-size: 12px; color: var(--faint); }
+  .rec-amt { font-size: 14px; font-weight: 700; white-space: nowrap; }
+  .rec-amt.income { color: var(--income); }
+  .rec-empty { font-size: 13px; color: var(--faint); padding: 6px 0 4px; }
+  .rec-form { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .rec-form .seg { padding: 0 0 8px; }
+  .rec-form .seg button.active[data-type="expense"] { background: var(--danger); color: #fff; }
+  .rec-form .seg button.active[data-type="income"] { background: var(--income); color: #fff; }
+  .rec-form .full { margin-bottom: 8px; color: var(--text); }
+  .rec-form .row input[type="text"] { flex: 1; }
+  .rec-form select { flex: 1; min-width: 0; padding: 10px 8px; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; color: var(--text); background: var(--surface); }
+  .rec-mark { font-size: 11px; }
 </style>
 </head>
 <body>
@@ -245,6 +262,7 @@
   <div class="menu-sep"></div>
   <button class="item" id="budgetMenuBtn" data-i18n="budgetMenu"></button>
   <button class="item" id="reminderMenuBtn" data-i18n="remMenu"></button>
+  <button class="item" id="recurMenuBtn" data-i18n="recMenu"></button>
   <div class="menu-sep"></div>
   <button class="item" id="exportJsonBtn" data-i18n="exportJson"></button>
   <button class="item" id="exportCsvBtn" data-i18n="exportCsv"></button>
@@ -272,6 +290,28 @@
   <div class="panel-actions">
     <button class="ghost-btn" id="remCancel" data-i18n="close"></button>
     <button class="add-btn" id="remSave" data-i18n="saveBtn"></button>
+  </div>
+</div>
+
+<div class="panel" id="recurPanel">
+  <h3 data-i18n="recMenu"></h3>
+  <p data-i18n="recDescText"></p>
+  <div id="recList"></div>
+  <div class="rec-form">
+    <div class="seg" id="recType">
+      <button class="active" data-type="expense" data-i18n="expenseBtn"></button>
+      <button data-type="income" data-i18n="incomeBtn"></button>
+    </div>
+    <input type="text" class="full" id="recDesc" autocomplete="off" data-i18n-ph="recDescPh" />
+    <div class="row">
+      <input type="text" id="recAmount" inputmode="numeric" autocomplete="off" data-i18n-ph="amountPh" />
+      <select id="recDay"></select>
+    </div>
+    <button class="add-btn wide-btn" id="recAdd" data-i18n="recAdd"></button>
+    <div class="error" id="recError"></div>
+  </div>
+  <div class="panel-actions">
+    <button class="ghost-btn" id="recClose" data-i18n="close"></button>
   </div>
 </div>
 
@@ -340,6 +380,11 @@ const STR = {
     remCardText: "🔔 Bugungi xarajatlarni yozdingizmi?", remNow: "Hozir yozaman", remNone: "Bugun xarajat bo'lmadi",
     remNotifTitle: "Xarajat kundaligi", remNotifBody: "Bugungi xarajatlarni yozdingizmi? 🙂",
     tRemOn: "Eslatma yoqildi: har kuni {x}", tRemOff: "Eslatma o'chirildi", tRemSkip: "Yaxshi, bugun boshqa eslatmayman",
+    recMenu: "🔁 Doimiy to'lovlar", recDescText: "Har oy takrorlanadigan to'lovlar (ijara, internet, kredit, maosh) belgilangan kunda o'zi qo'shiladi.",
+    recDescPh: "Nomi (mas: ijara, internet, kredit)", recAdd: "+ Doimiy to'lov qo'shish", recDayOpt: "har oy {x}-kuni",
+    recEmpty: "Hozircha doimiy to'lov yo'q.", recNext: "keyingisi: {x}",
+    errRecDesc: "Nomini yozing", tRecAdded: "Saqlandi. Birinchi yozuv: {x}", tRecDeleted: "O'chirildi — oldin qo'shilgan yozuvlar saqlanib qoladi",
+    tRecAuto: "🔁 Avtomatik qo'shildi: {d} — {a} so'm", tRecAutoMany: "🔁 {n} ta doimiy to'lov avtomatik qo'shildi",
     q_Tushlik: "Tushlik", q_Taksi: "Taksi", q_Non: "Non", q_Svet: "Svet", q_Telefon: "Telefon", q_Maosh: "Maosh", q_Buyurtma: "Buyurtma",
   },
   ru: {
@@ -376,6 +421,11 @@ const STR = {
     remCardText: "🔔 Вы записали сегодняшние расходы?", remNow: "Записать сейчас", remNone: "Сегодня расходов не было",
     remNotifTitle: "Дневник расходов", remNotifBody: "Вы записали сегодняшние расходы? 🙂",
     tRemOn: "Напоминание включено: каждый день в {x}", tRemOff: "Напоминание выключено", tRemSkip: "Хорошо, сегодня больше не напомню",
+    recMenu: "🔁 Регулярные платежи", recDescText: "Ежемесячные платежи (аренда, интернет, кредит, зарплата) добавляются сами в указанный день.",
+    recDescPh: "Название (напр.: аренда, интернет, кредит)", recAdd: "+ Добавить регулярный платёж", recDayOpt: "каждый месяц {x}-го",
+    recEmpty: "Регулярных платежей пока нет.", recNext: "следующий: {x}",
+    errRecDesc: "Введите название", tRecAdded: "Сохранено. Первая запись: {x}", tRecDeleted: "Удалено — уже добавленные записи сохранятся",
+    tRecAuto: "🔁 Добавлено автоматически: {d} — {a} сум", tRecAutoMany: "🔁 Автоматически добавлено платежей: {n}",
     q_Tushlik: "Обед", q_Taksi: "Такси", q_Non: "Хлеб", q_Svet: "Свет", q_Telefon: "Телефон", q_Maosh: "Зарплата", q_Buyurtma: "Заказ",
   },
 };
@@ -555,6 +605,7 @@ let expenses = loadJSON(STORAGE_KEY, []);
 if (!Array.isArray(expenses)) expenses = [];
 let settings = Object.assign({ theme: "auto", lang: "lat", budget: { total: 0, cats: {} } }, loadJSON(SETTINGS_KEY, {}));
 settings.reminder = Object.assign({ on: false, time: "21:00", skip: "" }, settings.reminder);
+if (!Array.isArray(settings.recurring)) settings.recurring = [];
 lang = ["lat", "cyr", "ru"].includes(settings.lang) ? settings.lang : "lat";
 const saveExpenses = () => { saveJSON(STORAGE_KEY, expenses); renderReminder(); syncReminderToSW(); };
 const saveSettings = () => saveJSON(SETTINGS_KEY, settings);
@@ -690,7 +741,7 @@ const DEFAULT_QUICK = { expense: ["Tushlik", "Taksi", "Non", "Svet", "Telefon"],
 function getQuickItems() {
   const from = addDaysISO(todayISO(), -60);
   const groups = new Map();
-  expenses.filter(e => (e.type || "expense") === currentType && e.date >= from)
+  expenses.filter(e => (e.type || "expense") === currentType && e.date >= from && !e.recurringId)
     .slice().sort((a, b) => a.id - b.id)
     .forEach(e => {
       const key = normalize(e.desc.trim());
@@ -928,7 +979,7 @@ function render() {
           <span class="entry-dot" style="background:${colorFor(e.category)}"></span>
           <div>
             <div class="entry-desc">${escapeHtml(e.desc)}</div>
-            <div class="entry-meta">${escapeHtml(catLabel(e.category))} · ${e.date}</div>
+            <div class="entry-meta">${escapeHtml(catLabel(e.category))} · ${e.date}${e.recurringId ? ' · <span class="rec-mark">🔁</span>' : ""}</div>
           </div>
         </div>
         <div class="entry-right">
@@ -973,10 +1024,11 @@ $("langSeg").addEventListener("click", e => {
   if (editingId !== null) updateAddBtn();
   if ($("budgetPanel").classList.contains("open")) openBudgetPanel();
   if ($("reminderPanel").classList.contains("open")) renderReminderStatus();
+  if ($("recurPanel").classList.contains("open")) renderRecurPanel();
   syncReminderToSW();
   render();
 });
-$("menuBtn").addEventListener("click", () => { $("menu").classList.toggle("open"); $("budgetPanel").classList.remove("open"); $("reminderPanel").classList.remove("open"); });
+$("menuBtn").addEventListener("click", () => { $("menu").classList.toggle("open"); ["budgetPanel", "reminderPanel", "recurPanel"].forEach(id => $(id).classList.remove("open")); });
 
 function download(filename, content, type) {
   const blob = new Blob([content], { type });
@@ -1156,16 +1208,106 @@ $("remNone").addEventListener("click", () => {
 });
 
 // =====================================================================
+//  DOIMIY (OYLIK) TO'LOVLAR
+//  settings.recurring: [{ id, type, desc, amount, category, day, next }]
+//  next — navbatdagi yozuv sanasi; ilova ochilganda next <= bugun bo'lsa yozuv qo'shiladi
+//  (bir necha oy ochilmagan bo'lsa ham, o'tib ketgan har bir oy uchun qo'shadi)
+// =====================================================================
+function dayInMonth(y, m, day) { return Math.min(day, new Date(y, m + 1, 0).getDate()); }
+function monthDateISO(y, m, day) { const d = new Date(y, m, 1); return toISO(new Date(d.getFullYear(), d.getMonth(), dayInMonth(d.getFullYear(), d.getMonth(), day))); }
+function firstRecurDate(day) {
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+  return dayInMonth(y, m, day) >= now.getDate() ? monthDateISO(y, m, day) : monthDateISO(y, m + 1, day);
+}
+function nextRecurDate(iso, day) { const [y, m] = iso.split("-").map(Number); return monthDateISO(y, m, day); } // m (1-based) = keyingi oy indeksi
+function uniqueId() { let id = Date.now(); while (expenses.some(e => e.id === id)) id++; return id; }
+
+function applyRecurring() {
+  const today = todayISO(), added = [];
+  settings.recurring.forEach(r => {
+    let guard = 0;
+    while (r.next && r.next <= today && guard++ < 36) {
+      const entry = { id: uniqueId(), amount: r.amount, desc: r.desc, category: r.category, date: r.next, type: r.type, recurringId: r.id };
+      expenses.unshift(entry);
+      added.push(entry);
+      r.next = nextRecurDate(r.next, r.day);
+    }
+  });
+  if (!added.length) return;
+  saveSettings();
+  saveExpenses();
+  showToast(added.length === 1 ? t("tRecAuto", { d: added[0].desc, a: fmt(added[0].amount) }) : t("tRecAutoMany", { n: added.length }));
+}
+
+let recType = "expense";
+function setRecType(type) {
+  recType = type;
+  document.querySelectorAll("#recType button").forEach(b => b.classList.toggle("active", b.dataset.type === type));
+}
+function renderRecurPanel() {
+  const list = settings.recurring;
+  $("recList").innerHTML = list.length ? list.map(r => `
+    <div class="rec-item">
+      <span class="cat-dot" style="background:${colorFor(r.category)}"></span>
+      <div class="rec-info">
+        <b>${escapeHtml(r.desc)}</b>
+        <small>${escapeHtml(t("recDayOpt", { x: r.day }))} · ${escapeHtml(t("recNext", { x: r.next }))}</small>
+      </div>
+      <span class="rec-amt ${r.type === "income" ? "income" : ""}">${r.type === "income" ? "+" : "−"}${fmt(r.amount)}</span>
+      <button class="del-btn" data-rid="${r.id}" aria-label="✕">✕</button>
+    </div>`).join("") : `<div class="rec-empty">${escapeHtml(t("recEmpty"))}</div>`;
+  const sel = $("recDay"), cur = Number(sel.value) || new Date().getDate();
+  sel.innerHTML = Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}">${escapeHtml(t("recDayOpt", { x: i + 1 }))}</option>`).join("");
+  sel.value = String(cur);
+}
+function openRecurPanel() {
+  setRecType("expense");
+  $("recError").textContent = "";
+  renderRecurPanel();
+  $("menu").classList.remove("open");
+  ["budgetPanel", "reminderPanel"].forEach(id => $(id).classList.remove("open"));
+  $("recurPanel").classList.add("open");
+  $("recurPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+$("recurMenuBtn").addEventListener("click", openRecurPanel);
+$("recClose").addEventListener("click", () => $("recurPanel").classList.remove("open"));
+$("recType").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setRecType(b.dataset.type); });
+$("recAmount").addEventListener("input", () => { const n = parseAmount($("recAmount").value); $("recAmount").value = n ? fmt(n) : ""; });
+$("recAdd").addEventListener("click", () => {
+  const desc = $("recDesc").value.trim(), amount = parseAmount($("recAmount").value), day = Number($("recDay").value) || 1;
+  if (!desc) { $("recError").textContent = t("errRecDesc"); $("recDesc").focus(); return; }
+  if (!amount) { $("recError").textContent = t("errAmount"); $("recAmount").focus(); return; }
+  const first = firstRecurDate(day);
+  const r = { id: uniqueId(), type: recType, desc, amount, category: detectCategory(desc, recType), day, next: first };
+  settings.recurring.push(r);
+  saveSettings();
+  $("recDesc").value = ""; $("recAmount").value = ""; $("recError").textContent = "";
+  applyRecurring();   // bugungi kun bo'lsa — darhol qo'shiladi
+  renderRecurPanel();
+  render();
+  showToast(t("tRecAdded", { x: first }));
+});
+$("recList").addEventListener("click", e => {
+  const b = e.target.closest("[data-rid]");
+  if (!b) return;
+  settings.recurring = settings.recurring.filter(r => String(r.id) !== b.dataset.rid);
+  saveSettings();
+  renderRecurPanel();
+  showToast(t("tRecDeleted"));
+});
+
+// =====================================================================
 //  ISHGA TUSHIRISH
 // =====================================================================
 applyTheme();
 applyI18n();
 setType("expense");
+applyRecurring();
 render();
 scheduleReminder();
 
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) { if (editingId === null && !amountInput.value) dateInput.value = todayISO(); render(); scheduleReminder(); }
+  if (!document.hidden) { if (editingId === null && !amountInput.value) dateInput.value = todayISO(); applyRecurring(); render(); scheduleReminder(); }
 });
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
