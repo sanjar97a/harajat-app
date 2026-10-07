@@ -1,5 +1,7 @@
 // Har bir yangi relizda versiyani oshiring (v3, v4...) — eski kesh avtomatik o'chadi
-const CACHE_NAME = "xarajat-kundaligi-v5";
+const CACHE_NAME = "xarajat-kundaligi-v6";
+// Eslatma holati (sahifa yozadi, SW o'qiydi) — eski keshlar bilan birga o'chirilmaydi
+const REM_CACHE = "xarajat-reminder", REM_URL = "./__reminder-state", REM_TAG = "xarajat-reminder";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
@@ -17,7 +19,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== REM_CACHE).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -54,6 +56,40 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => cached);
       return cached || network;
+    })
+  );
+});
+
+// ---------------------------------------------------------------------
+//  Kechki eslatma: Periodic Background Sync (Chrome, o'rnatilgan PWA)
+// ---------------------------------------------------------------------
+const pad2 = (n) => String(n).padStart(2, "0");
+async function checkReminder() {
+  const cache = await caches.open(REM_CACHE);
+  const res = await cache.match(REM_URL);
+  if (!res) return;
+  const s = await res.json();
+  const d = new Date();
+  const today = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const hm = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  if (!s.on || hm < s.time || s.done === today || s.notified === today) return;
+  await self.registration.showNotification(s.title || "Xarajat kundaligi", {
+    body: s.body || "Bugungi xarajatlarni yozdingizmi?",
+    icon: "icon.png", badge: "icon.png", tag: REM_TAG,
+  });
+  s.notified = today;
+  await cache.put(REM_URL, new Response(JSON.stringify(s), { headers: { "Content-Type": "application/json" } }));
+}
+self.addEventListener("periodicsync", (event) => {
+  if (event.tag === REM_TAG) event.waitUntil(checkReminder().catch(() => {}));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const w of list) if ("focus" in w) return w.focus();
+      return self.clients.openWindow("./index.html");
     })
   );
 });

@@ -165,6 +165,21 @@
   @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(217,69,95,.5); } 50% { box-shadow: 0 0 0 8px rgba(217,69,95,0); } }
   .mic-status { font-size: 12px; color: var(--muted); margin-top: 8px; }
   .mic-status:empty { display: none; }
+
+  /* Kechki eslatma */
+  .reminder-card { display: none; margin: 12px 16px 0; padding: 12px 14px; border-radius: 14px; background: var(--banner-bg); border: 1px solid var(--banner-border); }
+  .reminder-card.show { display: block; }
+  .reminder-card b { display: block; font-size: 14px; margin-bottom: 10px; }
+  .reminder-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .reminder-actions button { padding: 8px 12px; font-size: 13px; }
+  .rem-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; font-size: 14px; cursor: pointer; }
+  .rem-row input[type="time"] { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 14px; }
+  .switch { appearance: none; -webkit-appearance: none; margin: 0; width: 44px; height: 26px; border-radius: 13px; background: var(--track); position: relative; cursor: pointer; flex-shrink: 0; transition: background .2s; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+  .switch:checked { background: var(--income); }
+  .switch:checked::after { transform: translateX(18px); }
+  .rem-note { font-size: 12px; color: var(--faint); margin-top: 6px; line-height: 1.45; }
+  .wide-btn { width: 100%; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -203,6 +218,14 @@
   <div class="error" id="errorMsg"></div>
 </div>
 
+<div class="reminder-card" id="reminderCard">
+  <b data-i18n="remCardText"></b>
+  <div class="reminder-actions">
+    <button class="add-btn" id="remNow" data-i18n="remNow"></button>
+    <button class="ghost-btn" id="remNone" data-i18n="remNone"></button>
+  </div>
+</div>
+
 <div class="quick" id="quickList"></div>
 <div class="quick-hint" id="quickHint"></div>
 
@@ -221,6 +244,7 @@
   </div>
   <div class="menu-sep"></div>
   <button class="item" id="budgetMenuBtn" data-i18n="budgetMenu"></button>
+  <button class="item" id="reminderMenuBtn" data-i18n="remMenu"></button>
   <div class="menu-sep"></div>
   <button class="item" id="exportJsonBtn" data-i18n="exportJson"></button>
   <button class="item" id="exportCsvBtn" data-i18n="exportCsv"></button>
@@ -235,6 +259,19 @@
   <div class="panel-actions">
     <button class="ghost-btn" id="budgetCancel" data-i18n="close"></button>
     <button class="add-btn" id="budgetSave" data-i18n="saveBtn"></button>
+  </div>
+</div>
+
+<div class="panel" id="reminderPanel">
+  <h3 data-i18n="remMenu"></h3>
+  <p data-i18n="remDesc"></p>
+  <label class="rem-row"><span data-i18n="remOn"></span><input type="checkbox" class="switch" id="remOn" /></label>
+  <label class="rem-row"><span data-i18n="remTime"></span><input type="time" id="remTime" value="21:00" /></label>
+  <div class="rem-note" id="remStatus"></div>
+  <button class="ghost-btn wide-btn" id="remIcs" data-i18n="remIcs"></button>
+  <div class="panel-actions">
+    <button class="ghost-btn" id="remCancel" data-i18n="close"></button>
+    <button class="add-btn" id="remSave" data-i18n="saveBtn"></button>
   </div>
 </div>
 
@@ -296,6 +333,13 @@ const STR = {
     micTitle: "Ovoz bilan kiritish", micListening: "🎙️ Gapiring... masalan: «tushlikka o'ttiz besh ming»", micNoSpeech: "Ovoz eshitilmadi, qaytadan urinib ko'ring",
     micDenied: "Mikrofonga ruxsat berilmagan", micError: "Ovozni tanib bo'lmadi, qaytadan urinib ko'ring", micHeard: "Eshitildi: «{t}» — tekshirib, qo'shing", micNoAmount: "Eshitildi: «{t}» — summani qo'lda kiriting",
     csvHead: "Sana;Turi;Tavsif;Kategoriya;Summa", csvInc: "Daromad", csvExp: "Xarajat", days: "kun",
+    remMenu: "🔔 Kechki eslatma", remDesc: "Belgilangan vaqtgacha bugun hech narsa yozmagan bo'lsangiz, eslatib qo'yadi.",
+    remOn: "Eslatmani yoqish", remTime: "Vaqti", remIcs: "📅 Telefon kalendariga qo'shish (aniq signal)",
+    remNoteOk: "Ilova ochiq yoki fonda bo'lsa, bildirishnoma keladi. Ilova butunlay yopiq bo'lganda ham aniq vaqtda signal chalinishi uchun kalendarga qo'shib qo'ying.",
+    remNoteNo: "Bu qurilmada bildirishnomaga ruxsat yo'q — eslatma ilovani ochganingizda chiqadi. Aniq vaqtda signal uchun kalendarga qo'shing.",
+    remCardText: "🔔 Bugungi xarajatlarni yozdingizmi?", remNow: "Hozir yozaman", remNone: "Bugun xarajat bo'lmadi",
+    remNotifTitle: "Xarajat kundaligi", remNotifBody: "Bugungi xarajatlarni yozdingizmi? 🙂",
+    tRemOn: "Eslatma yoqildi: har kuni {x}", tRemOff: "Eslatma o'chirildi", tRemSkip: "Yaxshi, bugun boshqa eslatmayman",
     q_Tushlik: "Tushlik", q_Taksi: "Taksi", q_Non: "Non", q_Svet: "Svet", q_Telefon: "Telefon", q_Maosh: "Maosh", q_Buyurtma: "Buyurtma",
   },
   ru: {
@@ -325,6 +369,13 @@ const STR = {
     micTitle: "Голосовой ввод", micListening: "🎙️ Говорите... например: «обед тридцать пять тысяч»", micNoSpeech: "Голос не услышан, попробуйте ещё раз",
     micDenied: "Нет доступа к микрофону", micError: "Не удалось распознать, попробуйте ещё раз", micHeard: "Услышано: «{t}» — проверьте и нажмите Добавить", micNoAmount: "Услышано: «{t}» — введите сумму вручную",
     csvHead: "Дата;Тип;Описание;Категория;Сумма", csvInc: "Доход", csvExp: "Расход", days: "дн.",
+    remMenu: "🔔 Вечернее напоминание", remDesc: "Напомнит, если к указанному времени вы ничего не записали за сегодня.",
+    remOn: "Включить напоминание", remTime: "Время", remIcs: "📅 Добавить в календарь телефона (точный сигнал)",
+    remNoteOk: "Если приложение открыто или в фоне — придёт уведомление. Чтобы сигнал сработал точно в срок даже при закрытом приложении, добавьте напоминание в календарь.",
+    remNoteNo: "На этом устройстве уведомления недоступны — напоминание появится, когда вы откроете приложение. Для точного сигнала добавьте его в календарь.",
+    remCardText: "🔔 Вы записали сегодняшние расходы?", remNow: "Записать сейчас", remNone: "Сегодня расходов не было",
+    remNotifTitle: "Дневник расходов", remNotifBody: "Вы записали сегодняшние расходы? 🙂",
+    tRemOn: "Напоминание включено: каждый день в {x}", tRemOff: "Напоминание выключено", tRemSkip: "Хорошо, сегодня больше не напомню",
     q_Tushlik: "Обед", q_Taksi: "Такси", q_Non: "Хлеб", q_Svet: "Свет", q_Telefon: "Телефон", q_Maosh: "Зарплата", q_Buyurtma: "Заказ",
   },
 };
@@ -503,8 +554,9 @@ function saveJSON(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); 
 let expenses = loadJSON(STORAGE_KEY, []);
 if (!Array.isArray(expenses)) expenses = [];
 let settings = Object.assign({ theme: "auto", lang: "lat", budget: { total: 0, cats: {} } }, loadJSON(SETTINGS_KEY, {}));
+settings.reminder = Object.assign({ on: false, time: "21:00", skip: "" }, settings.reminder);
 lang = ["lat", "cyr", "ru"].includes(settings.lang) ? settings.lang : "lat";
-const saveExpenses = () => saveJSON(STORAGE_KEY, expenses);
+const saveExpenses = () => { saveJSON(STORAGE_KEY, expenses); renderReminder(); syncReminderToSW(); };
 const saveSettings = () => saveJSON(SETTINGS_KEY, settings);
 
 let currentView = "kunlik", currentType = "expense", editingId = null, categoryFilter = null, searchQuery = "";
@@ -820,6 +872,7 @@ function render() {
 
   $("totalDisplay").innerHTML = `${fmt(total)} <span>${t("sum")}</span>`;
   $("periodLabel").textContent = t("period_" + currentView);
+  renderReminder();
 
   const prev = getPreviousExpenseTotal(), cmp = $("compareLabel"), p = t("cmp_" + currentView);
   if (prev === null || (prev === 0 && total === 0)) cmp.textContent = "";
@@ -919,9 +972,11 @@ $("langSeg").addEventListener("click", e => {
   setType(currentType);
   if (editingId !== null) updateAddBtn();
   if ($("budgetPanel").classList.contains("open")) openBudgetPanel();
+  if ($("reminderPanel").classList.contains("open")) renderReminderStatus();
+  syncReminderToSW();
   render();
 });
-$("menuBtn").addEventListener("click", () => { $("menu").classList.toggle("open"); $("budgetPanel").classList.remove("open"); });
+$("menuBtn").addEventListener("click", () => { $("menu").classList.toggle("open"); $("budgetPanel").classList.remove("open"); $("reminderPanel").classList.remove("open"); });
 
 function download(filename, content, type) {
   const blob = new Blob([content], { type });
@@ -968,6 +1023,138 @@ $("importFile").addEventListener("change", async e => {
   $("menu").classList.remove("open");
 });
 
+
+// =====================================================================
+//  KECHKI ESLATMA
+//  1) Ilova ochilganda: vaqt o'tgan va bugun yozuv yo'q bo'lsa — karta chiqadi
+//  2) Ilova ochiq/fonda: belgilangan vaqtda bildirishnoma
+//  3) Chrome (Android, o'rnatilgan PWA): Periodic Background Sync orqali service worker tekshiradi
+//  4) .ics — telefon kalendariga har kunlik signal (ilova yopiq bo'lsa ham aniq ishlaydi)
+// =====================================================================
+var REM_CACHE = "xarajat-reminder", REM_URL = "./__reminder-state", REM_TAG = "xarajat-reminder";
+function pad2(n) { return String(n).padStart(2, "0"); }
+function nowHM() { const d = new Date(); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; }
+function loggedToday() { const d = todayISO(); return expenses.some(e => e.date === d); }
+function reminderDue() {
+  const r = settings.reminder;
+  return r.on && nowHM() >= r.time && !loggedToday() && r.skip !== todayISO();
+}
+function renderReminder() { $("reminderCard").classList.toggle("show", reminderDue()); }
+
+// Service worker localStorage'ni o'qiy olmaydi — holatni Cache API orqali uzatamiz
+async function syncReminderToSW(extra = {}) {
+  if (!("caches" in window)) return;
+  try {
+    const c = await caches.open(REM_CACHE);
+    const prevRes = await c.match(REM_URL);
+    const prev = prevRes ? await prevRes.json() : {};
+    const r = settings.reminder, today = todayISO();
+    const state = Object.assign({ notified: prev.notified || "" }, {
+      on: r.on, time: r.time, done: loggedToday() || r.skip === today ? today : "",
+      title: t("remNotifTitle"), body: t("remNotifBody"),
+    }, extra);
+    await c.put(REM_URL, new Response(JSON.stringify(state), { headers: { "Content-Type": "application/json" } }));
+  } catch {}
+}
+
+function canNotify() { return "Notification" in window && "serviceWorker" in navigator; }
+async function showReminderNotification() {
+  if (!canNotify() || Notification.permission !== "granted") return;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (!reg) return;
+    await reg.showNotification(t("remNotifTitle"), { body: t("remNotifBody"), icon: "icon.png", badge: "icon.png", tag: REM_TAG });
+    syncReminderToSW({ notified: todayISO() });
+  } catch {}
+}
+
+let remTimer;
+function scheduleReminder() {
+  clearTimeout(remTimer);
+  renderReminder();
+  const r = settings.reminder;
+  if (!r.on) return;
+  const [h, m] = r.time.split(":").map(Number), now = new Date();
+  const at = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+  if (at <= now) at.setDate(at.getDate() + 1);
+  remTimer = setTimeout(() => {
+    renderReminder();
+    if (reminderDue() && document.hidden) showReminderNotification();
+    scheduleReminder();
+  }, Math.min(at - now + 500, 2147483647));
+}
+
+async function setPeriodicSync(on) {
+  try {
+    const reg = "serviceWorker" in navigator && await navigator.serviceWorker.getRegistration();
+    if (!reg || !reg.periodicSync) return;
+    if (!on) { await reg.periodicSync.unregister(REM_TAG); return; }
+    const st = await navigator.permissions.query({ name: "periodic-background-sync" });
+    if (st.state === "granted") await reg.periodicSync.register(REM_TAG, { minInterval: 60 * 60 * 1000 });
+  } catch {}
+}
+
+function renderReminderStatus() {
+  const ok = canNotify() && Notification.permission !== "denied";
+  $("remStatus").textContent = t(ok ? "remNoteOk" : "remNoteNo");
+}
+function openReminderPanel() {
+  $("remOn").checked = settings.reminder.on;
+  $("remTime").value = settings.reminder.time;
+  renderReminderStatus();
+  $("menu").classList.remove("open");
+  $("budgetPanel").classList.remove("open");
+  $("reminderPanel").classList.add("open");
+  $("reminderPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+$("reminderMenuBtn").addEventListener("click", openReminderPanel);
+$("remCancel").addEventListener("click", () => $("reminderPanel").classList.remove("open"));
+$("remSave").addEventListener("click", async () => {
+  const r = settings.reminder;
+  r.on = $("remOn").checked;
+  r.time = /^\d{2}:\d{2}$/.test($("remTime").value) ? $("remTime").value : "21:00";
+  saveSettings();
+  // Ruxsat so'rovi foydalanuvchi bosgan zahoti bo'lishi kerak (ayniqsa iPhone'da)
+  if (r.on && canNotify() && Notification.permission === "default") {
+    try { await Notification.requestPermission(); } catch {}
+  }
+  $("reminderPanel").classList.remove("open");
+  showToast(r.on ? t("tRemOn", { x: r.time }) : t("tRemOff"));
+  await syncReminderToSW();
+  setPeriodicSync(r.on);
+  scheduleReminder();
+});
+
+function icsEsc(s) { return String(s).replace(/[\\;,]/g, c => "\\" + c).replace(/\n/g, "\\n"); }
+$("remIcs").addEventListener("click", () => {
+  const time = /^\d{2}:\d{2}$/.test($("remTime").value) ? $("remTime").value : settings.reminder.time;
+  const [h, m] = time.split(":"), d = todayISO().replace(/-/g, "");
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const url = location.href.split("#")[0];
+  const ics = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Xarajat Kundaligi//UZ", "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT", `UID:xarajat-eslatma-${Date.now()}@harajat-app`, `DTSTAMP:${stamp}`,
+    `DTSTART:${d}T${h}${m}00`, "DURATION:PT10M", "RRULE:FREQ=DAILY",
+    `SUMMARY:${icsEsc(t("remNotifTitle"))}`, `DESCRIPTION:${icsEsc(t("remNotifBody") + " " + url)}`, `URL:${url}`,
+    "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsEsc(t("remNotifBody"))}`, "TRIGGER:PT0M", "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR",
+  ].join("\r\n");
+  download("xarajat-eslatma.ics", ics, "text/calendar;charset=utf-8");
+});
+
+$("remNow").addEventListener("click", () => {
+  setType("expense");
+  formCard.scrollIntoView({ behavior: "smooth", block: "start" });
+  amountInput.focus();
+});
+$("remNone").addEventListener("click", () => {
+  settings.reminder.skip = todayISO();
+  saveSettings();
+  renderReminder();
+  syncReminderToSW();
+  showToast(t("tRemSkip"));
+});
+
 // =====================================================================
 //  ISHGA TUSHIRISH
 // =====================================================================
@@ -975,12 +1162,17 @@ applyTheme();
 applyI18n();
 setType("expense");
 render();
+scheduleReminder();
 
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) { if (editingId === null && !amountInput.value) dateInput.value = todayISO(); render(); }
+  if (!document.hidden) { if (editingId === null && !amountInput.value) dateInput.value = todayISO(); render(); scheduleReminder(); }
 });
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => { navigator.serviceWorker.register("service-worker.js").catch(() => {}); });
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(() => { syncReminderToSW(); if (settings.reminder.on) setPeriodicSync(true); })
+      .catch(() => {});
+  });
 }
 let deferredPrompt;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredPrompt = e; $("installBanner").style.display = "block"; });
